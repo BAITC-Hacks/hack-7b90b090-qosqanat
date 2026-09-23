@@ -2,32 +2,19 @@
   "date": "2026-09-23",
   "routing": {
     "model": "gpt-realtime-2.1",
-    "prompt_sha256": "2c6545ed7c8732d24ed9d9c26eda754c67c9f60c1b3ddbceafb31e1de338f5ba",
+    "prompt_sha256": "24c7377608ff4c5878ee31512ac72c25d391c0fe47cac843644bd57acf0f8f4f",
     "total": 104,
-    "exact": 103,
-    "primary": 103
+    "exact": 104,
+    "primary": 104
   },
-  "routing_misses": [
-    {
-      "id": "U090",
-      "expected": [
-        "SC14",
-        "SC18"
-      ],
-      "actual": [
-        "SC18"
-      ],
-      "primary": false,
-      "exact": false,
-      "latency": 3339
-    }
-  ],
+  "routing_misses": [],
   "dialogs": {
     "total": 10,
     "client_turns": 40,
-    "route_exact": 39,
+    "route_exact": 38,
     "errors": 0,
-    "note": "Actual generated responses; reference bot turns are not injected."
+    "note": "Actual generated responses; reference bot turns are not injected.",
+    "prompt_sha256": "24c7377608ff4c5878ee31512ac72c25d391c0fe47cac843644bd57acf0f8f4f"
   },
   "voice": {
     "kind": "synthetic audio through live gateway and OpenAI; not human microphone evaluation",
@@ -36,26 +23,70 @@
         "language": "ru",
         "transcript": "Где находится ваш офис в Алматы?",
         "scenario": "SC33",
-        "audio_bytes": 741600,
-        "end_to_first_audio_ms": 5009
+        "greeting_audio_bytes": 247200,
+        "audio_bytes": 640800,
+        "end_to_first_audio_ms": 5430
       },
       {
         "language": "kk",
         "transcript": "Астанадағы кеңсеңіздің мекенжайы қандай?",
         "scenario": "SC33",
-        "audio_bytes": 897600,
-        "end_to_first_audio_ms": 4977
+        "greeting_audio_bytes": 283200,
+        "audio_bytes": 796800,
+        "end_to_first_audio_ms": 4693
       },
       {
         "language": "mixed",
         "transcript": "Сәлеметсіз бе, где ваш офис в Шымкенте?",
         "scenario": "SC33",
-        "audio_bytes": 583200,
-        "end_to_first_audio_ms": 4387
+        "greeting_audio_bytes": 213600,
+        "audio_bytes": 568800,
+        "end_to_first_audio_ms": 5105
       }
     ]
   },
-  "offline_tests": 12,
+  "offline_tests": 27,
   "http_integration": "passed: 3 parallel sessions, role checks, atomic claim, transfer, AI stop",
-  "compose": "configuration validated; Docker Engine unavailable; clean container run not verified"
+  "compose": "configuration validated; Docker Engine unavailable; clean container run not verified",
+  "phone_http": "passed: required phone, concurrent canonical identity, protected case history, resume, ordinary detach, lost connection and one recovery greeting",
+  "live_voice": {
+    "kind": "Synthetic audio, three concurrent live sessions; no human microphone test",
+    "reports": [
+      {
+        "language": "ru",
+        "case_id": "1bfa94f0-4432-4411-96eb-55bbf895a77e",
+        "early_deltas": 19,
+        "first_transcript_ms": 872,
+        "first_answer_ms": 5422,
+        "first_audio_ms": 6441,
+        "answer_done_ms": 9652,
+        "audio_bytes": 936000,
+        "transcript": "Здравствуйте. Подскажите, пожалуйста, где находится ваш офис в Алматы и в какое время он работает?"
+      },
+      {
+        "language": "kk",
+        "case_id": "9b49300b-8c2c-4378-85b6-3f252e75583b",
+        "early_deltas": 23,
+        "first_transcript_ms": 1428,
+        "first_answer_ms": 4955,
+        "first_audio_ms": 5969,
+        "answer_done_ms": 9149,
+        "audio_bytes": 842400,
+        "transcript": "Selemetsiz бе? Алматыдағы кеңсеңіз қай жерде орналасқан және жұмыс уақыты қандай?"
+      },
+      {
+        "language": "mixed",
+        "case_id": "967c8b9b-016e-4688-ad1d-60364852859c",
+        "early_deltas": 19,
+        "first_transcript_ms": 873,
+        "first_answer_ms": 5374,
+        "first_audio_ms": 6427,
+        "answer_done_ms": 6430,
+        "audio_bytes": 700800,
+        "transcript": "Сәлеметсіз бе? Я хочу узнать, где ваш офис в Алматы, жумыс уақыты қандай?"
+      }
+    ]
+  },
+  "live_voice_interruption": "passed: typed speech, cancellation, interrupted history, preview invalidation, deduplication, operator handoff",
+  "human_microphone": "Chrome: startup and interim transcript observed after AudioWorklet fix; full speech quality and interruption acceptance pending"
 }

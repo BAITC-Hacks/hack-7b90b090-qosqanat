@@ -1282,3 +1282,68 @@ details summary {
   color: #002fa7;
   margin-top: 8px;
 }
+
+.phone-form {
+  display: grid;
+  gap: 12px;
+  max-width: 420px;
+  margin-top: 24px;
+}
+.phone-form input {
+  padding: 14px;
+  border: 1px solid #cbd5cf;
+  border-radius: 10px;
+  font: inherit;
+}
+.phone-form small {
+  color: #56665d;
+}
+.history-choice {
+  max-width: 860px;
+  margin: 40px auto;
+  padding: 24px;
+}
+.choice-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.past-case {
+  padding: 22px;
+  border: 1px solid #dae1da;
+  border-radius: 14px;
+  margin: 18px 0;
+}
+.past-case h2 {
+  font-size: 20px;
+}
+.past-transcript {
+  padding-top: 24px;
+}
+.past-transcript .message {
+  max-width: 100%;
+  margin: 12px 0;
+}
+
+.voice-controls {
+  width: 100%;
+}
+.voice-controls .voice-row {
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.voice-help {
+  font-size: 12px;
+  color: var(--muted, #69717c);
+  margin: 0 0 12px;
+}
+.draft-label {
+  font-size: 11px;
+  color: var(--muted, #69717c);
+}
+.message:has(.draft-label) {
+  border-left: 2px solid #6685bb;
+}
+.voice-controls .notice {
+  flex-wrap: wrap;
+}

@@ -29,9 +29,20 @@ for (const [language, text] of [
     await fetch("http://localhost:3000/api/sessions", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: "{}",
+      body: JSON.stringify({
+        phone: "+7701777000" + reports.length,
+        locale: language === "kk" ? "kk" : "ru",
+      }),
     })
   ).json();
+  await fetch("http://localhost:3000/api/start", {
+    method: "POST",
+    headers: {
+      Authorization: "Bearer " + session.token,
+      "Content-Type": "application/json",
+    },
+    body: "{}",
+  });
   const report: any = await new Promise((resolve, reject) => {
     const ws = new WebSocket("ws://localhost:3000/api/voice", {
       headers: { Origin: "http://localhost:3000" },
@@ -41,7 +52,8 @@ for (const [language, text] of [
       first: number | null = null,
       transcript = "",
       scenario = "",
-      bytes = 0;
+      bytes = 0,
+      greetingBytes = 0;
     const timer = setTimeout(() => finish(Error("voice_timeout")), 90000);
     function finish(error?: Error) {
       clearTimeout(timer);
@@ -52,6 +64,7 @@ for (const [language, text] of [
             language,
             transcript,
             scenario,
+            greeting_audio_bytes: greetingBytes,
             audio_bytes: bytes,
             end_to_first_audio_ms: first,
           });
@@ -64,9 +77,22 @@ for (const [language, text] of [
       const e = JSON.parse(raw.toString());
       if (e.type === "ping") ws.send(JSON.stringify({ type: "pong" }));
       if (e.type === "error") finish(Error(e.code));
-      if (e.type === "ready" && phase === "connect") {
+      if (e.type === "greeting_done") {
+        if (!greetingBytes) {
+          finish(Error("missing_greeting_audio"));
+          return;
+        }
         phase = "start";
         ws.send(JSON.stringify({ type: "start" }));
+      }
+      if (phase === "greeting") {
+        if (e.type === "audio")
+          greetingBytes += Buffer.byteLength(e.audio, "base64");
+        return;
+      }
+      if (e.type === "ready" && phase === "connect") {
+        phase = "greeting";
+        ws.send(JSON.stringify({ type: "greeting" }));
       }
       if (e.type === "recording") {
         for (let i = 0; i < audio.length; i += 24000)

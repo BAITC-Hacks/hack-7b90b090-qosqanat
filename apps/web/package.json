@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
-    "build": "vite build",
+    "build": "node --check public/voice-worklet.js && vite build",
     "start": "vite preview --host 0.0.0.0 --port 3000"
   },
   "dependencies": {

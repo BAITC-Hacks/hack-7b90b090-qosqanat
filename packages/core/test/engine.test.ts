@@ -23,9 +23,10 @@ const decision = (id = "SC33", slots: Decision["slots"] = {}): Decision => ({
   reason: "test",
   knowledge_topics: [],
 });
-const setup = () => {
+const setup = (phone = "+77010000001") => {
   const s = new Store(":memory:");
-  const a = s.createSession();
+  const a = s.createSession(phone);
+  s.start(a.token);
   return { s, a, e: new Engine(s) };
 };
 test("input slots and complete explicit confirmations", () => {
@@ -44,7 +45,7 @@ test("input slots and complete explicit confirmations", () => {
 });
 test("tokens isolate histories and forged resume IDs are forbidden", () => {
   const { s, a, e } = setup();
-  const b = s.createSession();
+  const b = s.createSession("+77010000002");
   e.apply(a.token, "Офис", randomUUID(), decision("SC33", { city: "almaty" }));
   assert.equal(s.messages(b.case_id).length, 0);
   assert.throws(() => e.resume(b.token, a.case_id), /forbidden/);
@@ -61,7 +62,7 @@ test("human claim is exclusive; transfer disables previous operator", () => {
   assert.throws(() => e.operatorReply(a.case_id, one, "test"), /forbidden/);
   assert.equal(e.addReply(a.token, "AI must stop", randomUUID()), null);
   e.operatorReply(a.case_id, two, "Продолжим");
-  assert.equal(s.messages(a.case_id).length, 2);
+  assert.equal(s.messages(a.case_id).length, 3);
   s.close();
 });
 test("turn retry is idempotent, disconnect cancels preview without execution", () => {
@@ -81,7 +82,7 @@ test("turn retry is idempotent, disconnect cancels preview without execution", (
   const c = s.get(a.case_id);
   assert(c.pending);
   e.apply(a.token, "retry", id, decision());
-  assert.equal(s.messages(a.case_id).length, 1);
+  assert.equal(s.messages(a.case_id).length, 2);
   s.disconnect(a.token);
   assert.equal(s.get(a.case_id).pending, null);
   assert.equal(s.entities("clients")[0].email, client.email);
@@ -151,14 +152,26 @@ test("restart persists transcript and operation; marks active connection interru
   const dir = mkdtempSync(join(tmpdir(), "voice-test-")),
     path = join(dir, "db.sqlite");
   let s = new Store(path);
-  const a = s.createSession();
+  const a = s.createSession("+77010000001");
+  s.start(a.token);
   s.message(a.case_id, "client", "История", randomUUID());
   s.close();
   s = new Store(path);
   s.recover();
-  assert.equal(s.messages(a.case_id)[0]?.text, "История");
+  assert.equal(
+    s.messages(a.case_id).find((m) => m.role === "client")?.text,
+    "История",
+  );
   assert.equal(s.get(a.case_id).disconnect_reason, "server_restart");
   assert.equal(s.session(a.token).status, "disconnected");
+  s.touch(a.token);
+  s.touch(a.token);
+  assert.equal(
+    s.messages(a.case_id).filter((m) => m.kind === "greeting").length,
+    2,
+  );
+  const b = s.createSession("87010000001");
+  assert(s.customerCases(b.token).some((c) => c.id === a.case_id));
   s.close();
   rmSync(dir, { recursive: true });
 });
@@ -181,7 +194,7 @@ test("RU KK EN injection cannot change identity or execute an action", () => {
       }),
     );
     assert.equal(result.plan.kind, "blocked");
-    assert.equal(s.get(a.case_id).client_id, null);
+    assert.equal(s.get(a.case_id).client_id, client.client_id);
     assert.equal(s.entities("clients")[0].email, client.email);
     s.close();
   }
@@ -200,14 +213,8 @@ test("new session resumes only identified customer and invalidates old confirmat
     }),
   );
   s.disconnect(a.token);
-  const b = s.createSession();
-  const r = e.apply(
-    b.token,
-    "Продолжим",
-    randomUUID(),
-    decision("SC29", { phone: client.phone }),
-  );
-  assert.equal(r.plan.kind, "resume");
+  const b = s.createSession(client.phone);
+  assert(s.customerCases(b.token).some((c) => c.id === a.case_id));
   e.resume(b.token, a.case_id);
   assert.equal(s.session(b.token).case_id, a.case_id);
   assert.equal(s.get(a.case_id).pending, null);
@@ -265,7 +272,7 @@ test("prices follow supplied rates and undefined tariffs fail closed", async () 
   assert.equal(refund({ end_date: "2027-04-30", premium: 312000 }, []), 163800);
 });
 test("new customer purchase creates identity for later history lookup", () => {
-  const { s, a, e } = setup();
+  const { s, a, e } = setup("+77019990000");
   const slots = {
     phone: "+77019990000",
     trip_country: "Turkey",
@@ -282,7 +289,8 @@ test("new customer purchase creates identity for later history lookup", () => {
   assert(s.entities("policies").some((x) => x.client_id === id));
   s.disconnect(a.token, "client_ended");
   assert.equal(s.get(a.case_id).status, "resolved");
-  const b = s.createSession();
+  const b = s.createSession(slots.phone);
+  s.start(b.token);
   e.apply(
     b.token,
     "Мой полис",

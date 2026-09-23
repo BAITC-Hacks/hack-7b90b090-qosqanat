@@ -7,6 +7,7 @@ import { Store } from "@voice/db";
 import { Engine, mask } from "@voice/core";
 import {
   AppError,
+  createSessionSchema,
   decisionSchema,
   turnSchema,
   type Staff,
@@ -46,7 +47,31 @@ const token = (r: express.Request) =>
   z.string().min(40).parse(r.header("x-session-token"));
 app.post(
   "/sessions",
-  wrap(() => db.createSession("demo")),
+  wrap((r) => {
+    const b = createSessionSchema.parse(r.body);
+    return db.createSession(b.phone, b.locale);
+  }),
+);
+app.post(
+  "/sessions/start",
+  wrap((r) => db.start(token(r))),
+);
+app.get(
+  "/customer/cases",
+  wrap((r) => db.customerCases(token(r))),
+);
+app.get(
+  "/customer/cases/:id",
+  wrap((r) => {
+    const v = db.customerHistory(
+      token(r),
+      z.string().uuid().parse(r.params.id),
+    );
+    return {
+      ...v,
+      messages: v.messages.map((m) => ({ ...m, text: mask(m.text) })),
+    };
+  }),
 );
 app.post(
   "/sessions/touch",
@@ -73,6 +98,8 @@ app.get(
     const v = db.view(s.case_id);
     return {
       ...v,
+      session_status: s.status,
+      session_id: s.id,
       messages: v.messages.map((m) => ({ ...m, text: mask(m.text) })),
     };
   }),
@@ -86,6 +113,7 @@ app.post(
         turn_id: turnSchema.shape.turn_id,
         decision: decisionSchema,
         router_ms: z.number().min(0),
+        streaming: z.boolean().optional(),
       })
       .strict()
       .parse(r.body);
@@ -95,6 +123,7 @@ app.post(
       body.turn_id,
       body.decision,
       body.router_ms,
+      body.streaming,
     );
   }),
 );
@@ -125,6 +154,41 @@ app.post(
     }
     return { message: engine.addReply(token(r), b.text, b.turn_id) };
   }),
+);
+app.post(
+  "/stream/input",
+  wrap((r) => {
+    const b = turnSchema.parse(r.body);
+    return engine.acceptInput(token(r), b.turn_id, b.text);
+  }),
+);
+app.post(
+  "/stream/reply",
+  wrap((r) => {
+    const b = z
+      .object({
+        turn_id: z.string().uuid(),
+        text: z.string().max(6000),
+        status: z.enum(["draft", "completed", "interrupted"]),
+      })
+      .strict()
+      .parse(r.body);
+    return {
+      message: engine.streamReply(token(r), b.turn_id, b.text, b.status),
+    };
+  }),
+);
+app.post(
+  "/stream/cancel",
+  wrap((r) =>
+    engine.cancelStream(token(r), z.string().uuid().parse(r.body.turn_id)),
+  ),
+);
+app.post(
+  "/stream/played",
+  wrap((r) =>
+    engine.playedStream(token(r), z.string().uuid().parse(r.body.message_id)),
+  ),
 );
 app.post(
   "/delivery",
@@ -214,6 +278,8 @@ app.post(
     if (s.role !== "supervisor" && c.owner !== s.id)
       throw new AppError("forbidden", 403);
     c.status = "resolved";
+    if (c.pending || c.next_step.startsWith("confirm:"))
+      c.next_step = "confirm_again";
     c.pending = null;
     c.next_step = "completed";
     db.save(c);
@@ -241,7 +307,9 @@ app.use(
             err instanceof AppError
               ? err.code
               : err instanceof z.ZodError
-                ? "invalid_input"
+                ? err.issues.some((issue) => issue.path[0] === "phone")
+                  ? "invalid_phone"
+                  : "invalid_input"
                 : "internal_error",
         },
       }),
@@ -265,6 +333,8 @@ const interval = setInterval(() => {
         )
         .run(s.id);
       const c = db.get(s.case_id);
+      if (c.pending || c.next_step.startsWith("confirm:"))
+        c.next_step = "confirm_again";
       c.pending = null;
       c.disconnect_reason = "connection_lost";
       if (c.status === "open") c.status = "waiting_customer";

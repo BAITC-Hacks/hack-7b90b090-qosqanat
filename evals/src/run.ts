@@ -64,7 +64,14 @@ if (mode === "utterances") {
   for (const d of data("dialogs_sample.json").dialogs) {
     const store = new Store(":memory:"),
       engine = new Engine(store),
-      s = store.createSession();
+      s = store.createSession(
+        data("mock_backend.json").clients?.find(
+          (c: any) => c.client_id === d.client_id,
+        )?.phone ||
+          d.turns.find((t: any) => t.slots?.phone)?.slots.phone ||
+          "+77019998888",
+      );
+    store.start(s.token);
     const turns = [];
     for (const t of d.turns.filter((x: any) => x.role === "client")) {
       try {
@@ -98,14 +105,32 @@ if (mode === "utterances") {
     console.log(d.dialog_id, "completed", turns.length, "turns");
   }
 } else throw Error("Use utterances or dialogs");
+const dialogTurns = mode === "dialogs" ? rows.flatMap((x) => x.turns) : [];
 const report = {
   at: new Date().toISOString(),
   prompt_sha256: createHash("sha256").update(routingInstructions).digest("hex"),
   model: process.env.REALTIME_MODEL || "gpt-realtime-2.1",
   mode,
   total: rows.length,
-  exact: rows.filter((x) => x.exact).length,
-  primary: rows.filter((x) => x.primary).length,
+  ...(mode === "dialogs"
+    ? {
+        turns: dialogTurns.length,
+        exact: dialogTurns.filter(
+          (x) =>
+            !x.error &&
+            JSON.stringify([...x.expected].sort()) ===
+              JSON.stringify([...x.actual].sort()),
+        ).length,
+        primary: dialogTurns.filter(
+          (x) => !x.error && x.expected[0] === x.actual[0],
+        ).length,
+        errors: dialogTurns.filter((x) => x.error).length,
+      }
+    : {
+        exact: rows.filter((x) => x.exact).length,
+        primary: rows.filter((x) => x.primary).length,
+        errors: rows.filter((x) => x.error).length,
+      }),
   rows,
 };
 mkdirSync(join(root, "evals/artifacts"), { recursive: true });

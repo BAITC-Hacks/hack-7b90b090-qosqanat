@@ -153,6 +153,9 @@ importers:
       '@voice/contracts':
         specifier: workspace:*
         version: link:../contracts
+      '@voice/i18n':
+        specifier: workspace:*
+        version: link:../i18n
       '@voice/knowledge':
         specifier: workspace:*
         version: link:../knowledge

@@ -1044,3 +1044,131 @@ Object.assign(errorMessages, businessErrors);
 for (const [key, values] of Object.entries(businessErrors))
   for (const [index, l] of locales.entries())
     Object.assign(dictionaries[l], { [key]: values[index] });
+
+const phoneCopy: Record<string, [string, string, string]> = {
+  conversation_already_started: [
+    "Для выбора другого обращения начните новый разговор.",
+    "Басқа өтінішті таңдау үшін жаңа әңгіме бастаңыз.",
+    "Start a new conversation to choose another case.",
+  ],
+  untitledCase: [
+    "Обращение без темы",
+    "Тақырыбы көрсетілмеген өтініш",
+    "Case without a topic",
+  ],
+  phoneHint: [
+    "Введите номер, чтобы сохранить разговор и найти прошлые обращения.",
+    "Әңгімеңізді сақтау және бұрынғы өтініштерді табу үшін нөміріңізді енгізіңіз.",
+    "Enter your number to save the conversation and find previous cases.",
+  ],
+  yourCases: ["Ваши обращения", "Сіздің өтініштеріңіз", "Your cases"],
+  changePhone: ["Другой номер", "Басқа нөмір", "Change number"],
+  readHistory: ["Посмотреть историю", "Тарихты көру", "View history"],
+  invalid_phone: [
+    "Введите номер из 11 цифр, начиная с +7, 7 или 8.",
+    "+7, 7 немесе 8-ден басталатын 11 таңбалы нөмірді енгізіңіз.",
+    "Enter an 11-digit number starting with +7, 7 or 8.",
+  ],
+  conversation_not_started: [
+    "Выберите обращение или начните новый разговор.",
+    "Өтінішті таңдаңыз немесе жаңа әңгіме бастаңыз.",
+    "Choose a case or start a new conversation.",
+  ],
+};
+Object.assign(errorMessages, phoneCopy);
+for (const [key, values] of Object.entries(phoneCopy))
+  for (const [i, l] of locales.entries())
+    Object.assign(dictionaries[l], { [key]: values[i] });
+
+const liveCopy: Record<string, [string, string, string]> = {
+  enableVoice: ["Включить голос", "Дауысты қосу", "Enable voice"],
+  disableVoice: ["Выключить голос", "Дауысты өшіру", "Disable voice"],
+  muteMicrophone: ["Выключить микрофон", "Микрофонды өшіру", "Mute microphone"],
+  unmuteMicrophone: [
+    "Включить микрофон",
+    "Микрофонды қосу",
+    "Unmute microphone",
+  ],
+  transcribing: ["Распознаю", "Танып жатырмын", "Transcribing"],
+  speaking: ["Говорю", "Жауап беріп жатырмын", "Speaking"],
+  muted: ["Микрофон выключен", "Микрофон өшірулі", "Microphone muted"],
+  recognizingDraft: [
+    "Распознаю, текст может измениться",
+    "Тану жүріп жатыр, мәтін өзгеруі мүмкін",
+    "Transcribing; text may change",
+  ],
+  answerDraft: [
+    "Ответ дополняется",
+    "Жауап толықтырылып жатыр",
+    "Answer in progress",
+  ],
+  liveVoiceHint: [
+    "Говорите свободно. После паузы я отвечу. Меня можно перебить.",
+    "Еркін сөйлеңіз. Үзілістен кейін жауап беремін. Сөзімді бөлуге болады.",
+    "Speak naturally. I’ll answer after a pause. You can interrupt me.",
+  ],
+  manualVoice: [
+    "Записать реплику кнопкой",
+    "Репликаны батырмамен жазу",
+    "Record with button",
+  ],
+  liveFallback: [
+    "Живое распознавание недоступно. Можно написать или записать реплику кнопкой.",
+    "Нақты уақыттағы тану қолжетімсіз. Жазыңыз немесе репликаны батырмамен жазып жіберіңіз.",
+    "Live transcription is unavailable. Type or record a turn with the button.",
+  ],
+  microphone_timeout: [
+    "Браузер не ответил на запрос микрофона. Разрешите доступ к микрофону и попробуйте снова.",
+    "Браузер микрофон сұрауына жауап бермеді. Микрофонға рұқсат беріп, қайта көріңіз.",
+    "The browser did not respond to the microphone request. Allow microphone access and try again.",
+  ],
+  microphone_denied: [
+    "Доступ к микрофону запрещён. Разрешите его в настройках браузера.",
+    "Микрофонға рұқсат жоқ. Браузер баптауларында рұқсат беріңіз.",
+    "Microphone access was denied. Allow it in browser settings.",
+  ],
+  microphone_missing: [
+    "Микрофон не найден. Подключите его и попробуйте снова.",
+    "Микрофон табылмады. Оны қосып, қайта көріңіз.",
+    "No microphone found. Connect one and try again.",
+  ],
+  microphone_busy: [
+    "Не удалось открыть микрофон. Проверьте, доступен ли он другим приложениям.",
+    "Микрофонды ашу мүмкін болмады. Оның басқа қолданбаларда жұмыс істейтінін тексеріңіз.",
+    "Could not open the microphone. Check whether other apps can use it.",
+  ],
+  microphone_unsupported: [
+    "Этот браузер не предоставляет доступ к микрофону. Откройте приложение в браузере с поддержкой записи звука.",
+    "Бұл браузер микрофонға қолжетімділік бермейді. Қолданбаны дыбыс жазуды қолдайтын браузерде ашыңыз.",
+    "This browser does not provide microphone access. Open the app in a browser that supports audio capture.",
+  ],
+  audio_unavailable: [
+    "Не удалось запустить обработку звука в браузере. Обновите страницу и попробуйте снова.",
+    "Браузерде дыбысты өңдеуді бастау мүмкін болмады. Бетті жаңартып, қайта көріңіз.",
+    "Browser audio processing could not start. Reload the page and try again.",
+  ],
+  transcription_unavailable: [
+    "Не удалось включить живое распознавание. Попробуйте снова или используйте текст.",
+    "Нақты уақыттағы тануды қосу мүмкін болмады. Қайталап көріңіз немесе мәтін жазыңыз.",
+    "Live transcription could not start. Retry or use text.",
+  ],
+  transcription_closed: [
+    "Распознавание прервалось. Включите голос снова.",
+    "Тану үзілді. Дауысты қайта қосыңыз.",
+    "Transcription disconnected. Enable voice again.",
+  ],
+  transcription_timeout: [
+    "Распознавание заняло слишком много времени. Повторите реплику.",
+    "Тану тым ұзаққа созылды. Репликаны қайталаңыз.",
+    "Transcription timed out. Repeat your turn.",
+  ],
+  session_limit: [
+    "Начните новый разговор, чтобы продолжить.",
+    "Жалғастыру үшін жаңа әңгіме бастаңыз.",
+    "Start a new conversation to continue.",
+  ],
+};
+Object.assign(errorMessages, liveCopy);
+for (const [key, values] of Object.entries(liveCopy))
+  for (const [i, l] of locales.entries())
+    Object.assign(dictionaries[l], { [key]: values[i] });

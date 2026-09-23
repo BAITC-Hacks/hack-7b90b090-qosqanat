@@ -32,10 +32,18 @@ import {
   errorText as localizedError,
   type Locale,
 } from "@voice/i18n";
+import { phoneSchema } from "@voice/contracts";
+import type { Message } from "@voice/contracts";
 import type { CaseView, CaseState, Staff } from "@voice/contracts";
 import { VoiceClient } from "./voice";
+import { LiveVoiceClient } from "./live-voice";
 import "./style.css";
-type Auth = { session_id: string; token: string; case_id: string };
+type Auth = {
+  session_id: string;
+  token: string;
+  case_id: string;
+  phone: string;
+};
 function App() {
   const [locale, setLocale] = useState<Locale>(initialLocale),
     [page, setPage] = useState(
@@ -43,16 +51,27 @@ function App() {
     ),
     [auth, setAuth] = useState<Auth | null>(() => {
       try {
-        return JSON.parse(sessionStorage.getItem("voice-session") || "null");
+        const saved = JSON.parse(
+          sessionStorage.getItem("voice-session") || "null",
+        );
+        return saved?.phone ? saved : null;
       } catch {
         return null;
       }
     }),
+    [phone, setPhone] = useState(""),
+    [choosing, setChoosing] = useState(true),
+    [pastCases, setPastCases] = useState<CaseState[]>([]),
+    [pastMessages, setPastMessages] = useState<Message[] | null>(null),
     [view, setView] = useState<CaseView | null>(null),
     [input, setInput] = useState(""),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
     [voiceState, setVoiceState] = useState("ready"),
+    [voiceEnabled, setVoiceEnabled] = useState(false),
+    [micMuted, setMicMuted] = useState(false),
+    [liveUnavailable, setLiveUnavailable] = useState(false),
+    [liveDrafts, setLiveDrafts] = useState<Record<string, Message>>({}),
     [ended, setEnded] = useState(false),
     [showTrace, setShowTrace] = useState(true),
     [staff, setStaff] = useState<Staff | null>(null),
@@ -63,8 +82,10 @@ function App() {
     [filter, setFilter] = useState("all"),
     [search, setSearch] = useState(""),
     [target, setTarget] = useState("operator2");
+  const liveVoice = useRef<LiveVoiceClient | null>(null);
   const voice = useRef<VoiceClient | null>(null),
-    messagesEnd = useRef<HTMLDivElement>(null);
+    messagesEnd = useRef<HTMLDivElement>(null),
+    shownGreetings = useRef(new Set<string>());
   const tr = (key: string) => t(locale, key);
   const errorText = (code: string) => localizedError(code, locale);
   async function api(path: string, body?: unknown, token = auth?.token) {
@@ -80,6 +101,15 @@ function App() {
     if (!r.ok) throw new Error(d.error?.code || "error");
     return d;
   }
+  async function refreshSession() {
+    const v = await api("/session");
+    setView(v);
+    setChoosing(v.session_status === "pending");
+    setEnded(v.session_status === "closed");
+    if (auth) setPhone(auth.phone);
+    if (v.session_status === "pending")
+      setPastCases(await api("/customer/cases"));
+  }
   const fail = (e: unknown) =>
     setError(e instanceof Error ? e.message : "error");
   useEffect(() => {
@@ -91,21 +121,19 @@ function App() {
       void api("/staff/me")
         .then(setStaff)
         .catch(() => {});
-    else if (auth && !ended) void api("/session").then(setView).catch(fail);
+    else if (auth && !ended) void refreshSession().catch(fail);
   }, [page, auth?.token]);
   useEffect(() => {
     if (!auth || ended || page !== "client") return;
     const id = setInterval(() => {
       void api("/heartbeat", {})
-        .then(() =>
+        .then(async () => {
           setVoiceState((state) =>
             state === "disconnected" ? "ready" : state,
-          ),
-        )
+          );
+          await refreshSession();
+        })
         .catch(() => setVoiceState("disconnected"));
-      void api("/session")
-        .then(setView)
-        .catch(() => {});
     }, 5000);
     return () => clearInterval(id);
   }, [auth?.token, ended, page]);
@@ -127,9 +155,43 @@ function App() {
       const el = messagesEnd.current?.parentElement;
       if (el) el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
     })();
-  }, [view?.messages.length]);
-  useEffect(() => () => voice.current?.close(), []);
+  }, [view?.messages.length, liveDrafts]);
+  useEffect(() => {
+    if (page !== "client" || !auth || choosing) return;
+    const greeting = view?.messages.filter((m) => m.kind === "greeting").at(-1);
+    if (!greeting || shownGreetings.current.has(greeting.id)) return;
+    shownGreetings.current.add(greeting.id);
+    if (greeting.delivery === "unknown")
+      void api("/delivery", {
+        message_id: greeting.id,
+        status: "displayed",
+      }).catch(() => {});
+    if (
+      voice.current?.ws?.readyState === WebSocket.OPEN &&
+      voiceState === "ready"
+    ) {
+      setVoiceState("processing");
+      void voice.current
+        .greet()
+        .then(() => setVoiceState("ready"))
+        .catch(fail);
+    }
+  }, [view?.messages, auth?.token, choosing, page]);
+  useEffect(() => {
+    const detach = () => {
+      voice.current?.close();
+      liveVoice.current?.close();
+    };
+    window.addEventListener("pagehide", detach);
+    return () => {
+      window.removeEventListener("pagehide", detach);
+      detach();
+    };
+  }, []);
   function navigate(p: string) {
+    liveVoice.current?.close();
+    liveVoice.current = null;
+    setLiveDrafts({});
     voice.current?.close();
     voice.current = null;
     setPage(p);
@@ -143,12 +205,50 @@ function App() {
     try {
       voice.current?.close();
       voice.current = null;
-      const a = await api("/sessions", {}, undefined);
+      if (!phoneSchema.safeParse(phone).success)
+        throw new Error("invalid_phone");
+      const a = await api("/sessions", { phone, locale }, undefined);
+      const previous = await api("/customer/cases", undefined, a.token);
+      setPastCases(previous);
+      setPastMessages(null);
+      setChoosing(previous.length > 0);
       sessionStorage.setItem("voice-session", JSON.stringify(a));
+      const initial = await api(
+        previous.length ? "/session" : "/start",
+        previous.length ? undefined : {},
+        a.token,
+      );
       setAuth(a);
       setEnded(false);
-      setView(await api("/session", undefined, a.token));
+      setView(initial);
       setVoiceState("ready");
+    } catch (e) {
+      fail(e);
+    } finally {
+      setBusy(false);
+    }
+  }
+  function newCall() {
+    liveVoice.current?.close();
+    liveVoice.current = null;
+    setLiveDrafts({});
+    voice.current?.close();
+    voice.current = null;
+    setPhone(auth?.phone || phone);
+    setAuth(null);
+    setView(null);
+    setChoosing(false);
+    setPastMessages(null);
+    setEnded(false);
+    sessionStorage.removeItem("voice-session");
+  }
+  async function chooseCase(id?: string) {
+    setBusy(true);
+    setError("");
+    try {
+      setView(await api(id ? "/resume" : "/start", id ? { case_id: id } : {}));
+      setChoosing(false);
+      setPastMessages(null);
     } catch (e) {
       fail(e);
     } finally {
@@ -162,6 +262,11 @@ function App() {
     setBusy(true);
     setError("");
     voice.current?.cancel();
+    if (page === "client" && liveVoice.current?.enabled) {
+      liveVoice.current.sendText(text);
+      setBusy(false);
+      return;
+    }
     try {
       if (page === "staff") {
         await api("/staff/cases/" + selected + "/reply", { text });
@@ -186,6 +291,9 @@ function App() {
     }
   }
   async function end() {
+    liveVoice.current?.close();
+    liveVoice.current = null;
+    setLiveDrafts({});
     voice.current?.close();
     voice.current = null;
     try {
@@ -197,6 +305,107 @@ function App() {
     setEnded(true);
     setVoiceState("ready");
   }
+  function liveEvent(e: { type: string; [key: string]: any }) {
+    if (e.type === "voice.enabled") {
+      setVoiceEnabled(true);
+      setMicMuted(false);
+      setLiveUnavailable(false);
+    }
+    if (e.type === "voice.disabled") {
+      setVoiceEnabled(false);
+      setMicMuted(false);
+      setVoiceState("ready");
+      setLiveDrafts({});
+    }
+    if (
+      ["listening", "transcribing", "processing", "speaking", "muted"].includes(
+        e.type,
+      )
+    )
+      setVoiceState(e.type);
+    if (e.type === "speech.started") setVoiceState("listening");
+    if (e.type === "result" && e.view) setView(e.view);
+    if (e.type === "transcript.delta" || e.type === "transcript.final")
+      setLiveDrafts((old) => ({
+        ...old,
+        [e.turn_id]: {
+          id: e.turn_id,
+          turn_id: e.turn_id,
+          role: "client",
+          text: e.text,
+          at: new Date().toISOString(),
+          delivery: "displayed",
+          status: e.type === "transcript.final" ? "completed" : "draft",
+        },
+      }));
+    if (
+      e.type === "response.delta" ||
+      e.type === "response.done" ||
+      (e.type === "response.start" && e.message)
+    )
+      setLiveDrafts((old) => ({ ...old, [e.message.id]: e.message }));
+    if (e.type === "transcript.cancelled")
+      setLiveDrafts((old) => {
+        const next = { ...old };
+        delete next[e.turn_id];
+        return next;
+      });
+    if (e.type === "response.cancelled") {
+      setVoiceState("listening");
+      void api("/session")
+        .then(setView)
+        .catch(() => {});
+      setLiveDrafts((old) =>
+        Object.fromEntries(
+          Object.entries(old).filter(([, m]) => m.role !== "assistant"),
+        ),
+      );
+    }
+    if (e.type === "error") {
+      setError(e.code);
+      if (e.code.startsWith("transcription_")) setLiveUnavailable(true);
+    }
+    if (e.type === "disconnected") setVoiceState("disconnected");
+    if (e.type === "handoff") {
+      liveVoice.current?.close();
+      void refreshSession().catch(fail);
+    }
+  }
+  async function enableLiveVoice() {
+    if (voiceEnabled) {
+      liveVoice.current?.close();
+      liveVoice.current = null;
+      return;
+    }
+    if (!auth) return;
+    setError("");
+    setVoiceState("connecting");
+    voice.current?.close();
+    voice.current = null;
+    const client = new LiveVoiceClient(auth.token, liveEvent);
+    liveVoice.current = client;
+    try {
+      await client.start();
+    } catch (e) {
+      console.error(
+        "Voice startup failed:",
+        e instanceof Error ? `${e.name}: ${e.message}` : "unknown",
+      );
+      client.close();
+      liveVoice.current = null;
+      setLiveUnavailable(true);
+      setError(e instanceof Error ? e.message : "transcription_unavailable");
+      setVoiceState("ready");
+    }
+  }
+  useEffect(() => {
+    if (view?.case.owner || view?.case.status === "waiting_operator") {
+      liveVoice.current?.close();
+      liveVoice.current = null;
+      voice.current?.close();
+      voice.current = null;
+    }
+  }, [view?.case.owner, view?.case.status]);
   async function startVoice() {
     setError("");
     try {
@@ -290,7 +499,7 @@ function App() {
   );
   const canReply =
     page === "client"
-      ? !ended
+      ? !ended && !choosing && !!view
       : !!staff &&
         view?.case.owner === staff.id &&
         view.case.status !== "resolved";
@@ -408,6 +617,19 @@ function App() {
       </aside>
     );
   }
+  const displayedMessages = [
+    ...(view?.messages || []).map((m) =>
+      liveDrafts[m.id]?.status === "draft" ? liveDrafts[m.id]! : m,
+    ),
+    ...Object.values(liveDrafts).filter(
+      (m) =>
+        !view?.messages.some(
+          (saved) =>
+            saved.id === m.id ||
+            (saved.role === m.role && saved.turn_id === m.turn_id),
+        ),
+    ),
+  ];
   function Conversation() {
     return (
       <div className="conversation">
@@ -447,7 +669,7 @@ function App() {
               <p>{tr("voiceHint")}</p>
             </div>
           )}
-          {view?.messages.map((m) => (
+          {displayedMessages.map((m) => (
             <article className={"message " + m.role} key={m.id}>
               <div className="message-meta">
                 <strong>{m.role === "client" ? tr("you") : tr(m.role)}</strong>
@@ -459,6 +681,11 @@ function App() {
                 </time>
               </div>
               <p>{m.text}</p>
+              {m.status === "draft" && (
+                <small className="draft-label">
+                  {tr(m.role === "client" ? "recognizingDraft" : "answerDraft")}
+                </small>
+              )}
               {m.role !== "client" && (
                 <small className="delivery">
                   {tr(
@@ -480,22 +707,6 @@ function App() {
           )}
           <div ref={messagesEnd} />
         </div>
-        {view?.case.resume_candidates.length ? (
-          <div className="resume-cases">
-            <p>{tr("resumable")}</p>
-            {view.case.resume_candidates.map((id) => (
-              <button
-                key={id}
-                onClick={() =>
-                  void api("/resume", { case_id: id }).then(setView).catch(fail)
-                }
-              >
-                {tr("returnCase")} · {id.slice(0, 8)}
-                <ArrowUpRight size={15} />
-              </button>
-            ))}
-          </div>
-        ) : null}
         {view?.case.owner && (
           <div className="notice">
             <Headphones size={16} />
@@ -505,47 +716,61 @@ function App() {
         {canReply ? (
           <div className="composer-area">
             {page === "client" && (
-              <div className="voice-row">
-                <button
-                  className={
-                    "voice-button " +
-                    (voiceState === "listening" ? "recording" : "")
-                  }
-                  disabled={
-                    busy ||
-                    ["connecting", "processing"].includes(voiceState) ||
-                    !!view?.case.owner ||
-                    view?.case.status === "waiting_operator"
-                  }
-                  onClick={() => {
-                    if (voiceState === "listening") {
-                      voice.current?.stop();
-                      setVoiceState("processing");
-                    } else void startVoice();
-                  }}
-                >
-                  {voiceState === "listening" ? (
-                    <Square size={16} />
-                  ) : (
-                    <Mic size={18} />
-                  )}{" "}
-                  {tr(voiceState === "listening" ? "stop" : "mic")}
-                </button>
-                <span className="voice-state">
-                  <span className={"dot " + voiceState} />
-                  {tr(voiceState)}
-                </span>
-                {voiceState === "processing" && (
+              <div className="voice-controls">
+                <div className="voice-row">
                   <button
-                    className="icon-button"
-                    aria-label={tr("close")}
-                    onClick={() => {
-                      voice.current?.cancel();
-                      setVoiceState("ready");
-                    }}
+                    className={
+                      "voice-button " + (voiceEnabled ? "recording" : "")
+                    }
+                    disabled={
+                      voiceState === "connecting" ||
+                      !!view?.case.owner ||
+                      view?.case.status === "waiting_operator"
+                    }
+                    onClick={() => void enableLiveVoice()}
                   >
-                    <X size={18} />
+                    <Mic size={18} />
+                    {tr(voiceEnabled ? "disableVoice" : "enableVoice")}
                   </button>
+                  {voiceEnabled && (
+                    <button
+                      className="quiet"
+                      onClick={() => {
+                        liveVoice.current?.mute();
+                        setMicMuted(!!liveVoice.current?.muted);
+                      }}
+                    >
+                      {tr(micMuted ? "unmuteMicrophone" : "muteMicrophone")}
+                    </button>
+                  )}
+                  <span className="voice-state">
+                    <span className={"dot " + voiceState} />
+                    {tr(voiceState)}
+                  </span>
+                </div>
+                {voiceEnabled && (
+                  <p className="voice-help">{tr("liveVoiceHint")}</p>
+                )}
+                {liveUnavailable && !voiceEnabled && (
+                  <div className="notice">
+                    <span>{tr("liveFallback")}</span>
+                    <button
+                      className="quiet"
+                      disabled={
+                        busy ||
+                        ["connecting", "processing"].includes(voiceState) ||
+                        !!view?.case.owner
+                      }
+                      onClick={() => {
+                        if (voiceState === "listening") {
+                          voice.current?.stop();
+                          setVoiceState("processing");
+                        } else void startVoice();
+                      }}
+                    >
+                      {tr(voiceState === "listening" ? "stop" : "manualVoice")}
+                    </button>
+                  </div>
                 )}
               </div>
             )}
@@ -577,7 +802,7 @@ function App() {
           <div className="ended">
             <Check size={18} />
             {tr("callEnded")}
-            <button onClick={() => void begin()}>{tr("newCall")}</button>
+            <button onClick={newCall}>{tr("newCall")}</button>
           </div>
         ) : null}
       </div>
@@ -667,14 +892,34 @@ function App() {
             <span className="eyebrow">Saqta Insurance</span>
             <h1>{tr("hero")}</h1>
             <p>{tr("intro")}</p>
-            <button
-              className="primary start"
-              disabled={busy}
-              onClick={() => void begin()}
+            <form
+              className="phone-form"
+              onSubmit={(e) => {
+                e.preventDefault();
+                void begin();
+              }}
             >
-              {tr("start")}
-              <ArrowUpRight size={21} />
-            </button>
+              <label htmlFor="phone">{tr("phone")}</label>
+              <input
+                id="phone"
+                type="tel"
+                autoComplete="tel"
+                required
+                maxLength={40}
+                placeholder="+7 (700) 000-00-00"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                aria-describedby="phone-hint"
+              />
+              <small id="phone-hint">{tr("phoneHint")}</small>
+              <button
+                className="primary start"
+                disabled={busy || !phoneSchema.safeParse(phone).success}
+              >
+                {tr("start")}
+                <ArrowUpRight size={21} />
+              </button>
+            </form>
             <div className="trust">
               <ShieldCheck size={18} />
               {tr("safety")}
@@ -726,6 +971,73 @@ function App() {
             {tr("privacy")}
           </p>
         </main>
+      ) : page === "client" && choosing ? (
+        <main className="history-choice">
+          <h1>{tr("yourCases")}</h1>
+          <p>{auth?.phone.replace(/^(.*)(.{4})$/, "+7 ••• $2")}</p>
+          <div className="choice-actions">
+            <button
+              className="primary"
+              disabled={busy}
+              onClick={() => void chooseCase()}
+            >
+              {tr("newCall")}
+            </button>
+            <button
+              className="quiet"
+              onClick={() => {
+                void api("/end", {}).catch(() => {});
+                newCall();
+              }}
+            >
+              {tr("changePhone")}
+            </button>
+          </div>
+          {!pastCases.length && <p>{tr("emptyHistory")}</p>}
+          {pastCases.map((c) => (
+            <article className="past-case" key={c.id}>
+              <h2>
+                {c.active ? scenarioName(c.active, locale) : tr("untitledCase")}
+              </h2>
+              <p>
+                {formatDate(c.created_at, locale)} · {tr(c.status)}
+              </p>
+              <div className="choice-actions">
+                <button
+                  className="quiet"
+                  disabled={busy}
+                  onClick={() =>
+                    void api("/customer/cases/" + c.id)
+                      .then((v) => setPastMessages(v.messages))
+                      .catch(fail)
+                  }
+                >
+                  {tr("readHistory")}
+                </button>
+                {c.status !== "resolved" && (
+                  <button
+                    className="primary"
+                    disabled={busy}
+                    onClick={() => void chooseCase(c.id)}
+                  >
+                    {tr("resume")}
+                  </button>
+                )}
+              </div>
+            </article>
+          ))}
+          {pastMessages && (
+            <section className="past-transcript">
+              <h2>{tr("history")}</h2>
+              {pastMessages.map((m) => (
+                <article className={"message " + m.role} key={m.id}>
+                  <strong>{tr(m.role === "client" ? "you" : m.role)}</strong>
+                  <p>{m.text}</p>
+                </article>
+              ))}
+            </section>
+          )}
+        </main>
       ) : page === "client" ? (
         <main className={"client-layout " + (!showTrace ? "no-trace" : "")}>
           <div className="call-toolbar">
@@ -742,7 +1054,7 @@ function App() {
                 {tr(showTrace ? "hideTrace" : "showTrace")}
               </button>
               {ended ? (
-                <button className="quiet" onClick={() => void begin()}>
+                <button className="quiet" onClick={newCall}>
                   {tr("newCall")}
                 </button>
               ) : (

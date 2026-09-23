@@ -1,10 +1,14 @@
+import { Microphone } from "./capture";
+import { pcmBase64 } from "./vad";
 export type VoiceEvent = { type: string; [key: string]: any };
 export class VoiceClient {
   ws: WebSocket | null = null;
+  greetingWait: { resolve: () => void; reject: (e: Error) => void } | null =
+    null;
   input: AudioContext | null = null;
   output: AudioContext | null = null;
   stream: MediaStream | null = null;
-  processor: ScriptProcessorNode | null = null;
+  private microphone = new Microphone();
   source: MediaStreamAudioSourceNode | null = null;
   nodes: AudioBufferSourceNode[] = [];
   next = 0;
@@ -32,6 +36,15 @@ export class VoiceClient {
           return;
         }
         if (e.type === "ready") resolve();
+        if (e.type === "greeting_done") {
+          const pending = this.greetingWait;
+          setTimeout(
+            () => pending?.resolve(),
+            Math.max(0, (this.next - (this.output?.currentTime || 0)) * 1000) +
+              100,
+          );
+          return;
+        }
         if (e.type === "audio") {
           this.play(e.audio, e.message_id);
           return;
@@ -49,6 +62,7 @@ export class VoiceClient {
         }
         if (e.type === "error") {
           this.stopCapture();
+          this.greetingWait?.reject(new Error(e.code));
           reject(new Error(e.code));
         }
         this.event(e);
@@ -56,6 +70,7 @@ export class VoiceClient {
       this.ws.onerror = () => reject(new Error("connection_lost"));
       this.ws.onclose = () => {
         this.stopCapture();
+        this.greetingWait?.reject(new Error("connection_lost"));
         this.event({ type: "disconnected" });
       };
     });
@@ -65,37 +80,39 @@ export class VoiceClient {
   }
   async start() {
     this.cancelPlayback();
-    this.stream = await navigator.mediaDevices.getUserMedia({
-      audio: {
-        echoCancellation: true,
-        noiseSuppression: true,
-        autoGainControl: true,
-      },
-    });
     await this.connect();
     this.output ??= new AudioContext({ sampleRate: 24000 });
     await this.output.resume();
+    await this.greet();
     this.send({ type: "start" });
   }
+  async greet() {
+    if (this.greetingWait) return;
+    this.endOfSpeech = 0;
+    await new Promise<void>((resolve, reject) => {
+      const timer = setTimeout(() => {
+        this.greetingWait = null;
+        reject(new Error("provider_timeout"));
+      }, 45000);
+      this.greetingWait = {
+        resolve: () => {
+          clearTimeout(timer);
+          this.greetingWait = null;
+          resolve();
+        },
+        reject: (e) => {
+          clearTimeout(timer);
+          this.greetingWait = null;
+          reject(e);
+        },
+      };
+      this.send({ type: "greeting" });
+    });
+  }
   async capture() {
-    if (!this.stream) return;
-    this.input = new AudioContext({ sampleRate: 24000 });
-    await this.input.resume();
-    this.source = this.input.createMediaStreamSource(this.stream);
-    this.processor = this.input.createScriptProcessor(4096, 1, 1);
-    this.processor.onaudioprocess = (e) => {
-      const f = e.inputBuffer.getChannelData(0);
-      const pcm = new Int16Array(f.length);
-      for (let i = 0; i < f.length; i++)
-        pcm[i] = Math.max(-1, Math.min(1, f[i]!)) * 32767;
-      let binary = "";
-      const bytes = new Uint8Array(pcm.buffer);
-      for (let i = 0; i < bytes.length; i++)
-        binary += String.fromCharCode(bytes[i]!);
-      this.send({ type: "audio", audio: btoa(binary) });
-    };
-    this.source.connect(this.processor);
-    this.processor.connect(this.input.destination);
+    await this.microphone.start((samples) =>
+      this.send({ type: "audio", audio: pcmBase64(samples) }),
+    );
   }
   stop() {
     this.stopCapture();
@@ -104,13 +121,7 @@ export class VoiceClient {
     this.send({ type: "stop", turn_id: crypto.randomUUID() });
   }
   stopCapture() {
-    this.processor?.disconnect();
-    this.source?.disconnect();
-    this.stream?.getTracks().forEach((t) => t.stop());
-    this.stream = null;
-    void this.input?.close().catch(() => {});
-    this.input = null;
-    this.processor = null;
+    this.microphone.close();
   }
   play(chunk: string, id: string) {
     if (!this.output) return;
@@ -134,7 +145,9 @@ export class VoiceClient {
           this.delivered(
             id,
             "displayed",
-            Math.round(performance.now() - this.endOfSpeech),
+            this.endOfSpeech
+              ? Math.round(performance.now() - this.endOfSpeech)
+              : undefined,
           ),
         Math.max(0, (at - this.output.currentTime) * 1000),
       );
@@ -155,13 +168,14 @@ export class VoiceClient {
     }
   }
   cancel() {
+    this.greetingWait?.reject(new Error("cancelled"));
     this.stopCapture();
     this.cancelPlayback();
     this.send({ type: "cancel" });
   }
   close() {
     this.cancel();
-    this.ws?.close();
+    this.ws?.close(1000, "client_view_closed");
     this.ws = null;
     void this.output?.close();
     this.output = null;

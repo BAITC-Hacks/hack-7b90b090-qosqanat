@@ -23,6 +23,7 @@ services:
       REALTIME_MODEL: ${REALTIME_MODEL:-gpt-realtime-2.1}
       REALTIME_FALLBACK_MODEL: ${REALTIME_FALLBACK_MODEL:-gpt-realtime}
       TEXT_MODEL: ${TEXT_MODEL:-gpt-4.1-mini}
+      TRANSCRIPTION_MODEL: ${TRANSCRIPTION_MODEL:-gpt-live-transcribe}
       PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:-http://localhost:3000}
       SCENARIO_URL: http://scenario:3002
     depends_on:

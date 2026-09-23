@@ -26,9 +26,14 @@ async function request(
   };
 }
 const clients = await Promise.all(
-  Array.from({ length: 3 }, () => request("/sessions", {})),
+  Array.from({ length: 3 }, (_, i) =>
+    request("/sessions", { phone: "+7701888000" + i }),
+  ),
 );
-for (const c of clients) assert.equal(c.status, 200);
+for (const c of clients) {
+  assert.equal(c.status, 200);
+  assert.equal((await request("/start", {}, c.data.token)).status, 200);
+}
 const hearts = setInterval(() => {
   for (const c of clients) void request("/heartbeat", {}, c.data.token);
 }, 5000);
@@ -47,7 +52,10 @@ try {
     assert.equal(turns[i]!.status, 200);
     const v = turns[i]!.data.view;
     assert.equal(v.messages.filter((m: any) => m.role === "client").length, 1);
-    assert.equal(v.messages[0].text, texts[i]);
+    assert.equal(
+      v.messages.find((m: any) => m.role === "client").text,
+      texts[i],
+    );
     assert.equal(v.traces[0].scenarios[0].scenario_id, "SC33");
   }
   assert.equal(

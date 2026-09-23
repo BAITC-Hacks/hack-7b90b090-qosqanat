@@ -1,5 +1,6 @@
 import "../../../scripts/env.js";
 import express from "express";
+import { liveConnection } from "./live.js";
 import { createServer } from "node:http";
 import { randomBytes, timingSafeEqual } from "node:crypto";
 import { WebSocketServer, WebSocket } from "ws";
@@ -10,7 +11,12 @@ import {
   narrate,
   fallbackReply,
 } from "@voice/ai";
-import { turnSchema, AppError, type Staff } from "@voice/contracts";
+import {
+  turnSchema,
+  createSessionSchema,
+  AppError,
+  type Staff,
+} from "@voice/contracts";
 import { mask } from "@voice/core";
 import { scenarios } from "@voice/knowledge";
 const internal = process.env.INTERNAL_SECRET,
@@ -71,7 +77,9 @@ const wrap =
       .catch(n);
 const clientToken = (r: express.Request) => {
   const v = r.header("authorization")?.replace(/^Bearer /, "");
-  return z.string().min(40).max(200).parse(v);
+  if (!v || v.length < 40 || v.length > 200)
+    throw new AppError("unauthorized", 401);
+  return v;
 };
 const staffTokens = new Map<string, { staff: Staff; expires: number }>();
 const account = (id: string): Staff => ({
@@ -140,8 +148,25 @@ app.post(
   "/api/sessions",
   wrap(async (r) => {
     rate("create:" + (r.ip || ""), 15);
-    return core("/sessions", undefined, {});
+    return core("/sessions", undefined, createSessionSchema.parse(r.body));
   }),
+);
+app.post(
+  "/api/start",
+  wrap((r) => core("/sessions/start", clientToken(r), {})),
+);
+app.get(
+  "/api/customer/cases",
+  wrap((r) => core("/customer/cases", clientToken(r))),
+);
+app.get(
+  "/api/customer/cases/:id",
+  wrap((r) =>
+    core(
+      "/customer/cases/" + z.string().uuid().parse(r.params.id),
+      clientToken(r),
+    ),
+  ),
 );
 app.get(
   "/api/session",
@@ -177,6 +202,9 @@ async function processTurn(
 ) {
   await core("/sessions/touch", token, {});
   const before = await core("/session", token);
+  if (before.session_status !== "active")
+    throw new AppError("conversation_not_started", 409);
+  if (!before.case.client_id) throw new AppError("phone_required", 409);
   if (before.case.owner || before.case.status === "waiting_operator") {
     const neutral = {
       scenarios: [{ scenario_id: before.case.active || "SC37", confidence: 1 }],
@@ -320,7 +348,9 @@ app.use(
             err instanceof AppError
               ? err.code
               : err instanceof z.ZodError
-                ? "invalid_input"
+                ? err.issues.some((issue) => issue.path[0] === "phone")
+                  ? "invalid_phone"
+                  : "invalid_input"
                 : "provider_unavailable",
         },
       }),
@@ -329,7 +359,7 @@ const server = createServer(app);
 const wss = new WebSocketServer({ noServer: true, maxPayload: 70000 });
 server.on("upgrade", (req, socket, head) => {
   if (
-    req.url !== "/api/voice" ||
+    !["/api/voice", "/api/live"].includes(req.url || "") ||
     req.headers.origin !== origin ||
     wss.clients.size >= 32
   ) {
@@ -339,7 +369,32 @@ server.on("upgrade", (req, socket, head) => {
   }
   wss.handleUpgrade(req, socket, head, (ws) => wss.emit("connection", ws, req));
 });
-wss.on("connection", (ws) => {
+wss.on("connection", (ws, req) => {
+  if (req.url === "/api/live") {
+    liveConnection(ws, {
+      core,
+      serial,
+      limited,
+      rate,
+      reserve: () => {
+        if (
+          active + voiceReservations >=
+          Number(process.env.MAX_ACTIVE_MODELS || 8)
+        )
+          throw new AppError("busy", 503);
+        voiceReservations++;
+        let released = false;
+        return () => {
+          if (!released) {
+            released = true;
+            voiceReservations--;
+          }
+        };
+      },
+    });
+    return;
+  }
+
   let token = "",
     conn: RealtimeConnection | null = null,
     audioBytes = 0,
@@ -380,6 +435,40 @@ wss.on("connection", (ws) => {
         await core("/sessions/touch", token, {});
         return;
       }
+      if (e.type === "greeting") {
+        if (busy || conn) throw new AppError("busy", 409);
+        busy = true;
+        rate("voice:" + token, 20);
+        const state = await core("/session", token);
+        if (state.session_status !== "active" || !state.case.client_id)
+          throw new AppError("conversation_not_started", 409);
+        const greeting = state.messages
+          .filter((m: any) => m.kind === "greeting")
+          .at(-1);
+        if (greeting && greeting.delivery !== "played") {
+          if (
+            active + voiceReservations >=
+            Number(process.env.MAX_ACTIVE_MODELS || 8)
+          )
+            throw new AppError("busy", 503);
+          voiceReservations++;
+          reserved = true;
+          conn = new RealtimeConnection({ language: state.case.language });
+          const current = conn;
+          await current.speak(greeting.text, undefined, (chunk) => {
+            if (conn === current)
+              send({ type: "audio", audio: chunk, message_id: greeting.id });
+          });
+          if (conn !== current) return;
+          send({ type: "audio_done", message_id: greeting.id });
+          current.close();
+          conn = null;
+          release();
+        }
+        busy = false;
+        send({ type: "greeting_done" });
+        return;
+      }
       if (e.type === "start") {
         if (busy || conn) throw new AppError("busy", 409);
         busy = true;
@@ -391,6 +480,9 @@ wss.on("connection", (ws) => {
           throw new AppError("busy", 503);
         voiceReservations++;
         reserved = true;
+        const state = await core("/session", token);
+        if (state.session_status !== "active" || !state.case.client_id)
+          throw new AppError("conversation_not_started", 409);
         const ctx = await core("/context", token);
         if (ctx.case.owner || ctx.case.status === "waiting_operator")
           throw new AppError("human_active", 409);
@@ -497,12 +589,12 @@ wss.on("connection", (ws) => {
       });
     }
   });
-  ws.on("close", () => {
+  ws.on("close", (code, reason) => {
     release();
     clearTimeout(authTimeout);
     clearInterval(heartbeat);
     conn?.close();
-    if (token)
+    if (token && !(code === 1000 && reason.toString() === "client_view_closed"))
       void core("/sessions/end", token, { reason: "connection_lost" }).catch(
         () => {},
       );

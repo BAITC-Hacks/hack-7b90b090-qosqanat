@@ -1,3 +1,4 @@
+import { languageChoice } from "./language.js";
 import { randomUUID, createHash } from "node:crypto";
 import {
   AppError,
@@ -121,7 +122,12 @@ export class Engine {
     const history = c.client_id
       ? this.store
           .list(c.workspace_id)
-          .filter((x) => x.client_id === c.client_id && x.id !== c.id)
+          .filter(
+            (x) =>
+              x.client_id === c.client_id &&
+              x.id !== c.id &&
+              this.store.messages(x.id).length > 0,
+          )
           .slice(0, 4)
           .map((x) => ({
             case_id: x.id,
@@ -130,17 +136,31 @@ export class Engine {
             next_step: x.next_step,
             last_messages: this.store
               .messages(x.id)
+              .filter((m) => m.status !== "draft")
               .slice(-4)
-              .map((m) => ({ role: m.role, text: m.text })),
+              .map((m) => ({
+                role: m.role,
+                text: m.text,
+                status: m.status || "completed",
+              })),
           }))
       : [];
     return {
+      client:
+        this.store
+          .entities("clients", c.workspace_id)
+          .find((x) => x.client_id === c.client_id) || null,
       as_of_date: AS_OF,
       case: c,
       messages: this.store
         .messages(c.id)
+        .filter((m) => m.status !== "draft")
         .slice(-16)
-        .map((m) => ({ role: m.role, text: m.text })),
+        .map((m) => ({
+          role: m.role,
+          text: m.text,
+          status: m.status || "completed",
+        })),
       previous: history,
     };
   }
@@ -209,9 +229,14 @@ export class Engine {
     turnId: string,
     raw: Decision,
     routerMs = 0,
+    streaming = false,
   ) {
     const session = this.store.session(token);
     if (session.status === "closed") throw new AppError("session_closed", 409);
+    if (session.status !== "active")
+      throw new AppError("conversation_not_started", 409);
+    if (!this.store.get(session.case_id).client_id)
+      throw new AppError("phone_required", 409);
     const key = session.id + ":" + turnId;
     const cached = this.store.turn(key);
     if (cached) return cached;
@@ -219,13 +244,44 @@ export class Engine {
     return this.store.transaction(() => {
       const start = performance.now(),
         c = this.store.get(session.case_id);
-      this.store.message(c.id, "client", text, turnId);
-      c.language = decision.reply_language;
+      if (
+        !this.store
+          .messages(c.id)
+          .some((m) => m.turn_id === turnId && m.role === "client")
+      )
+        this.store.message(c.id, "client", text, turnId);
+      const customer = this.store
+        .entities("clients", c.workspace_id)
+        .find((x) => x.client_id === c.client_id);
+      if (customer && !isInjection(text)) {
+        const selected = languageChoice(
+          text,
+          decision,
+          c.language,
+          customer.language_samples || [],
+          customer.language_preference,
+        );
+        c.language = selected.language;
+        this.store.put(
+          "clients",
+          customer.client_id,
+          {
+            ...customer,
+            conversation_language: selected.language,
+            language_samples: selected.samples,
+            language_preference: selected.preference,
+          },
+          c.workspace_id,
+        );
+      }
       c.disconnect_reason = null;
       if (c.status === "waiting_customer") c.status = "open";
       const events: ActionEvent[] = [];
       let plan: ReplyPlan;
-      const norm = normalizeSlots(decision.slots);
+      const norm = normalizeSlots({
+        ...decision.slots,
+        phone: customer?.phone || c.slots.phone,
+      });
       const changed =
         c.pending &&
         Object.entries(norm.values).some(
@@ -284,6 +340,7 @@ export class Engine {
           oldPending &&
           !changed &&
           oldPending.session_id === session.id &&
+          oldPending.confirmation_ready !== false &&
           explicitConfirmation(text)
         ) {
           try {
@@ -668,6 +725,10 @@ export class Engine {
           }
         }
       }
+      if (streaming && c.pending) {
+        c.pending.turn_id = turnId;
+        c.pending.confirmation_ready = false;
+      }
       const trace: Trace = {
         turn_id: turnId,
         transcript: text,
@@ -712,17 +773,101 @@ export class Engine {
   addReply(token: string, text: string, turnId: string) {
     const s = this.store.session(token);
     const c = this.store.get(s.case_id);
-    if (c.owner) return null;
+    if (c.owner || s.status !== "active") return null;
     const old = this.store
       .messages(c.id)
       .find((m) => m.turn_id === turnId && m.role === "assistant");
     if (old) return old;
     return this.store.message(c.id, "assistant", mask(text), turnId);
   }
+  acceptInput(token: string, turnId: string, text: string) {
+    return this.store.transaction(() => {
+      const session = this.store.session(token);
+      if (session.status !== "active")
+        throw new AppError("session_closed", 409);
+      const c = this.store.get(session.case_id);
+      if (!c.client_id) throw new AppError("phone_required", 409);
+      const old = this.store
+        .messages(c.id)
+        .find((m) => m.turn_id === turnId && m.role === "client");
+      if (old) {
+        if (old.text !== text) throw new AppError("stale_state", 409);
+        return old;
+      }
+      return this.store.message(c.id, "client", text, turnId);
+    });
+  }
+  streamReply(
+    token: string,
+    turnId: string,
+    text: string,
+    status: "draft" | "completed" | "interrupted",
+  ) {
+    return this.store.transaction(() => {
+      const session = this.store.session(token),
+        c = this.store.get(session.case_id);
+      const messages = this.store.messages(c.id);
+      if (!messages.some((m) => m.turn_id === turnId && m.role === "client"))
+        throw new AppError("invalid_state", 409);
+      const old = messages.find(
+        (m) => m.turn_id === turnId && m.role === "assistant",
+      );
+      if (
+        c.owner ||
+        c.status === "waiting_operator" ||
+        session.status !== "active"
+      )
+        return null;
+      if (old && old.status !== "draft") return old;
+      const safe = mask(text);
+      if (old && !safe.startsWith(old.text))
+        throw new AppError("stale_state", 409);
+      const m = old || this.store.message(c.id, "assistant", safe, turnId);
+      m.text = safe;
+      m.status = status;
+      if (status === "interrupted") m.delivery = "interrupted";
+      return this.store.updateMessage(c.id, m);
+    });
+  }
+  cancelStream(token: string, turnId: string) {
+    return this.store.transaction(() => {
+      const session = this.store.session(token),
+        c = this.store.get(session.case_id);
+      const m = this.store
+        .messages(c.id)
+        .find((m) => m.turn_id === turnId && m.role === "assistant");
+      if (m && m.delivery !== "played") {
+        m.status = "interrupted";
+        m.delivery = "interrupted";
+        this.store.updateMessage(c.id, m);
+      }
+      if (c.pending?.turn_id === turnId) {
+        c.pending = null;
+        c.next_step = "confirm_again";
+        this.store.save(c);
+      }
+      return { ok: true };
+    });
+  }
+  playedStream(token: string, messageId: string) {
+    return this.store.transaction(() => {
+      const session = this.store.session(token),
+        c = this.store.get(session.case_id);
+      const m = this.store.messages(c.id).find((m) => m.id === messageId);
+      if (!m || m.status === "interrupted") return { ok: false };
+      this.store.delivery(c.id, m.id, "played");
+      if (m.status === "completed" && c.pending?.turn_id === m.turn_id) {
+        c.pending.confirmation_ready = true;
+        this.store.save(c);
+      }
+      return { ok: true };
+    });
+  }
   resume(token: string, id: string) {
     const s = this.store.session(token),
       current = this.store.get(s.case_id),
       target = this.store.get(id);
+    if (s.status === "closed") throw new AppError("session_closed", 409);
     if (
       !current.client_id ||
       target.client_id !== current.client_id ||
@@ -730,17 +875,38 @@ export class Engine {
       target.status === "resolved"
     )
       throw new AppError("forbidden", 403);
+    if (current.id === target.id) return this.store.view(id);
+    if (s.status !== "pending")
+      throw new AppError("conversation_already_started", 409);
     this.store.transaction(() => {
       current.status = "resolved";
       current.next_step = "resumed:" + target.id;
       this.store.save(current);
+      if (target.pending || target.next_step.startsWith("confirm:"))
+        target.next_step = "confirm_again";
       target.pending = null;
       target.disconnect_reason = null;
+      target.resume_candidates = [];
+      const client = this.store
+        .entities("clients", target.workspace_id)
+        .find((x) => x.client_id === target.client_id);
+      target.language =
+        client?.language_preference ||
+        client?.conversation_language ||
+        current.language;
       if (target.status === "waiting_customer") target.status = "open";
       this.store.save(target);
       this.store.db
-        .prepare("UPDATE sessions SET case_id=? WHERE id=?")
+        .prepare(
+          "UPDATE sessions SET status='closed',ended_reason='replaced' WHERE case_id=? AND id<>?",
+        )
         .run(id, s.id);
+      this.store.db
+        .prepare(
+          "UPDATE sessions SET case_id=?,status='active',last_seen=?,ended_reason=NULL WHERE id=?",
+        )
+        .run(id, Date.now(), s.id);
+      this.store.greet({ ...s, case_id: id }, true);
     });
     return this.store.view(id);
   }

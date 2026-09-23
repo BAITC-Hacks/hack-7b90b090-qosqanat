@@ -67,6 +67,9 @@ export type Scenario = {
   responses: Record<Language, { opening: string; closing: string }>;
 };
 export type Message = {
+  status?: "draft" | "completed" | "interrupted";
+  kind?: "greeting";
+  session_id?: string;
   id: string;
   role: "client" | "assistant" | "operator";
   text: string;
@@ -82,6 +85,8 @@ export type ActionEvent = {
   key?: string;
 };
 export type Pending = {
+  turn_id?: string;
+  confirmation_ready?: boolean;
   id: string;
   session_id: string;
   scenario: string;
@@ -176,3 +181,65 @@ export class AppError extends Error {
   }
 }
 export const SCHEMA_VERSION = 1;
+
+export const phoneSchema = z
+  .string()
+  .trim()
+  .max(40)
+  .transform((v) => v.replace(/[\s()\-]/g, ""))
+  .transform((v) =>
+    /^8\d{10}$/.test(v) ? "+7" + v.slice(1) : /^7\d{10}$/.test(v) ? "+" + v : v,
+  )
+  .pipe(z.string().regex(/^\+7\d{10}$/, "invalid_phone"));
+export const createSessionSchema = z
+  .object({
+    phone: phoneSchema,
+    locale: z.enum(["ru", "kk", "en"]).default("ru"),
+  })
+  .strict();
+
+export const liveInputSchema = z.discriminatedUnion("type", [
+  z
+    .object({ type: z.literal("speech_start"), turn_id: z.string().uuid() })
+    .strict(),
+  z
+    .object({
+      type: z.literal("audio"),
+      turn_id: z.string().uuid(),
+      audio: z
+        .string()
+        .min(1)
+        .max(16000)
+        .regex(/^[A-Za-z0-9+/]*={0,2}$/),
+    })
+    .strict(),
+  z
+    .object({ type: z.literal("speech_end"), turn_id: z.string().uuid() })
+    .strict(),
+  z
+    .object({
+      type: z.literal("text"),
+      turn_id: z.string().uuid(),
+      text: turnSchema.shape.text,
+    })
+    .strict(),
+  z.object({ type: z.literal("cancel") }).strict(),
+  z.object({ type: z.literal("input_cancel") }).strict(),
+  z
+    .object({
+      type: z.literal("played"),
+      response_id: z.string().uuid(),
+      message_id: z.string().uuid(),
+    })
+    .strict(),
+  z.object({ type: z.literal("pong") }).strict(),
+]);
+export type LiveOutputEvent = {
+  type: string;
+  session_id: string;
+  connection_id: string;
+  seq: number;
+  turn_id?: string;
+  response_id?: string;
+  [key: string]: unknown;
+};
