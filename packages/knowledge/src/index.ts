@@ -59,6 +59,16 @@ export function validateCatalog() {
     )
       throw Error("Missing confirmation");
   }
+  for (const [scenario, paths] of Object.entries(topics)) {
+    if (!ids.has(scenario))
+      throw Error("Unknown knowledge scenario " + scenario);
+    for (const path of paths)
+      if (knowledgeValue(path) === undefined)
+        throw Error("Unknown knowledge path " + scenario + ": " + path);
+  }
+  for (const path of Object.values(claimDocumentPaths))
+    if (knowledgeValue(path) === undefined)
+      throw Error("Unknown claim document path " + path);
   return {
     scenarios: scenarios.length,
     slots: slots.length,
@@ -77,14 +87,30 @@ export const topics: Record<string, string[]> = {
   SC08: ["products.accident"],
   SC09: ["products.dms"],
   SC10: ["company"],
-  SC11: ["claims.road_accident_now"],
-  SC12: ["claims.documents.ogpo_victim", "claims.submission"],
-  SC13: ["claims.documents.casco", "claims.submission"],
-  SC14: ["claims.documents.property", "claims.submission"],
-  SC15: ["products.travel.notes", "company.contact_center"],
-  SC16: ["claims.documents.accident"],
+  SC11: ["claims.road_accident_now", "claims.notify_deadline"],
+  SC12: [
+    "claims.documents.ogpo_victim",
+    "claims.submission",
+    "claims.notify_deadline",
+  ],
+  SC13: [
+    "claims.documents.casco",
+    "claims.submission",
+    "claims.notify_deadline",
+  ],
+  SC14: [
+    "claims.documents.property",
+    "claims.submission",
+    "claims.notify_deadline",
+  ],
+  SC15: [
+    "products.travel.notes",
+    "company.contact_center",
+    "claims.notify_deadline",
+  ],
+  SC16: ["claims.documents.accident", "claims.notify_deadline"],
   SC17: ["claims.decision_time", "claims.payout_time"],
-  SC18: ["claims.documents", "claims.submission"],
+  SC18: ["claims.documents", "claims.submission", "claims.notify_deadline"],
   SC19: ["claims.dispute"],
   SC20: ["inspection_points"],
   SC21: ["clinics", "products.dms.packages"],
@@ -108,32 +134,52 @@ export const topics: Record<string, string[]> = {
   SC39: ["documents_available"],
   SC40: ["products"],
 };
+const claimDocumentPaths: Record<string, string> = {
+  ogpo: "claims.documents.ogpo_victim",
+  casco: "claims.documents.casco",
+  travel: "claims.documents.travel",
+  property: "claims.documents.property",
+  accident: "claims.documents.accident",
+};
+function knowledgeValue(path: string): unknown {
+  let value: any = kb;
+  for (const part of path.split(".")) {
+    if (["__proto__", "constructor", "prototype"].includes(part))
+      return undefined;
+    value =
+      value != null && Object.hasOwn(value, part) ? value[part] : undefined;
+  }
+  return value;
+}
 export function lookup(
   scenario: string,
   extra: string[] = [],
   product?: string,
 ) {
+  // Narrow before accepting model-proposed topics, so extras cannot widen access.
+  const allowed = (
+    Object.hasOwn(topics, scenario) ? topics[scenario]! : []
+  ).flatMap((path) => {
+    if (scenario === "SC18" && path === "claims.documents")
+      return product && Object.hasOwn(claimDocumentPaths, product)
+        ? [claimDocumentPaths[product]!]
+        : [];
+    if (path === "products" && product && Object.hasOwn(kb.products, product))
+      return [path + "." + product];
+    return [path];
+  });
   const paths = [
     ...new Set([
-      ...(topics[scenario] || []),
+      ...allowed,
       ...extra.filter((p) =>
-        (topics[scenario] || []).some((t) => p === t || p.startsWith(t + ".")),
+        allowed.some((t) => p === t || p.startsWith(t + ".")),
       ),
     ]),
   ];
   const facts: Record<string, unknown> = {};
   const sources: string[] = [];
-  for (let p of paths) {
-    if (p === "products" && product && Object.hasOwn(kb.products, product))
-      p += "." + product;
-    let value: any = kb;
-    for (const part of p.split(".")) {
-      if (["__proto__", "constructor", "prototype"].includes(part)) {
-        value = undefined;
-        break;
-      }
-      value = value && Object.hasOwn(value, part) ? value[part] : undefined;
-    }
+  for (const p of paths) {
+    const value = knowledgeValue(p);
     if (value !== undefined) {
       facts[p] = value;
       sources.push("knowledge_base.json#/" + p.replaceAll(".", "/"));

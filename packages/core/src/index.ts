@@ -278,6 +278,40 @@ export class Engine {
       if (c.status === "waiting_customer") c.status = "open";
       const events: ActionEvent[] = [];
       let plan: ReplyPlan;
+      let requestScenario = decision.scenarios[0]!.scenario_id;
+      const requestContext = (): NonNullable<ReplyPlan["request_context"]> => {
+        const redact = (value: string) =>
+          mask(
+            value.replace(
+              /(?:\+7|8)[\s(-]*\d{3}[\s)-]*\d{3}[\s-]*\d{2}[\s-]*\d{2}\b/g,
+              (phone) => "+7 *** *** " + phone.replace(/\D/g, "").slice(-4),
+            ),
+          );
+        return {
+          utterance: redact(text),
+          scenario: requestScenario,
+          slots: Object.fromEntries(
+            Object.entries(c.slots).map(([key, value]) => [
+              key,
+              typeof value === "string"
+                ? redact(value)
+                : Array.isArray(value)
+                  ? value.map(redact)
+                  : key === "iin" || key === "phone"
+                    ? redact(String(value))
+                    : value,
+            ]),
+          ),
+          messages: this.store
+            .messages(c.id)
+            .filter(
+              (m) =>
+                m.turn_id !== turnId && (!m.status || m.status === "completed"),
+            )
+            .slice(-6)
+            .map((m) => ({ role: m.role, text: redact(m.text) })),
+        };
+      };
       const norm = normalizeSlots({
         ...decision.slots,
         phone: customer?.phone || c.slots.phone,
@@ -345,6 +379,7 @@ export class Engine {
         ) {
           try {
             c.active = oldPending.scenario;
+            requestScenario = oldPending.scenario;
             const preview = runAction(
               this.store,
               c,
@@ -386,6 +421,7 @@ export class Engine {
                   actions.findIndex((x) => x.name === oldPending.action),
               ],
             };
+            plan.request_context = requestContext();
             this.finish(c);
           } catch (e) {
             c.pending = null;
@@ -429,6 +465,7 @@ export class Engine {
                 ),
             );
             let id = picks[0]!.scenario_id;
+            requestScenario = id;
             const conf = picks[0]!.confidence;
             if (conf < 0.45) c.low_confidence++;
             else c.low_confidence = 0;
@@ -684,11 +721,18 @@ export class Engine {
                         kind: "facts",
                         language: c.language,
                         instruction:
-                          "Answer the current request using ONLY these facts. Mention required referrals/limits for coverage. If no matching fact exists, say it is not specified and offer an operator. Never say SMS/email was sent unless a result says so.",
+                          "Answer the current request using ONLY these facts. Mention required referrals/limits for coverage. If no matching fact exists, say it is not specified and offer an operator. Never say SMS/email was sent unless a result says so." +
+                          (id === "SC18" &&
+                          !Object.keys(knowledge.facts).some((path) =>
+                            path.startsWith("claims.documents."),
+                          )
+                            ? " The document checklist for the selected product is not specified in the knowledge base. Explicitly say this and offer an operator; do not substitute another product's checklist."
+                            : ""),
                         facts,
                         sources,
                       };
                       c.next_step = "completed";
+                      plan.request_context = requestContext();
                       this.finish(c);
                     }
                   } catch (e) {
@@ -725,6 +769,7 @@ export class Engine {
           }
         }
       }
+      plan.request_context ??= requestContext();
       if (streaming && c.pending) {
         c.pending.turn_id = turnId;
         c.pending.confirmation_ready = false;

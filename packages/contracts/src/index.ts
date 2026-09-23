@@ -165,6 +165,12 @@ export type ReplyPlan = {
   facts: Record<string, unknown>;
   sources: string[];
   question?: string;
+  request_context?: {
+    utterance: string;
+    scenario: string;
+    slots: Slots;
+    messages: { role: Message["role"]; text: string }[];
+  };
 };
 export type CaseView = {
   case: CaseState;
