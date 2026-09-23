@@ -348,7 +348,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "VoiceClient / LiveVoiceClient",
+      "community_name": "LiveVoiceClient / VoiceClient",
       "file_type": "code",
       "norm_label": "microphone",
       "source_file": "apps/web/src/capture.ts",
@@ -361,7 +361,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "VoiceClient / LiveVoiceClient",
+      "community_name": "LiveVoiceClient / VoiceClient",
       "file_type": "code",
       "norm_label": "livevoiceclient",
       "source_file": "apps/web/src/live-voice.ts",
@@ -374,7 +374,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "VoiceClient / LiveVoiceClient",
+      "community_name": "LiveVoiceClient / VoiceClient",
       "file_type": "code",
       "norm_label": "vadevent",
       "source_file": "apps/web/src/vad.ts",
@@ -387,7 +387,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "VoiceClient / LiveVoiceClient",
+      "community_name": "LiveVoiceClient / VoiceClient",
       "file_type": "code",
       "norm_label": "voiceactivity",
       "source_file": "apps/web/src/vad.ts",
@@ -400,7 +400,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "VoiceClient / LiveVoiceClient",
+      "community_name": "LiveVoiceClient / VoiceClient",
       "file_type": "code",
       "norm_label": "voiceclient",
       "source_file": "apps/web/src/voice.ts",
@@ -413,7 +413,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "VoiceClient / LiveVoiceClient",
+      "community_name": "LiveVoiceClient / VoiceClient",
       "file_type": "code",
       "norm_label": "voiceevent",
       "source_file": "apps/web/src/voice.ts",
@@ -827,7 +827,7 @@
       "file_type": "code",
       "norm_label": "pull()",
       "source_file": "packages/core/test/streaming.test.ts",
-      "source_location": "L160"
+      "source_location": "L161"
     },
     {
       "id": "packages_core_src_index_engine_acceptinput",
@@ -1043,7 +1043,7 @@
       "file_type": "code",
       "norm_label": "setup()",
       "source_file": "packages/core/test/streaming.test.ts",
-      "source_location": "L22"
+      "source_location": "L23"
     },
     {
       "id": "packages_db_src_index_store_close",
@@ -1703,7 +1703,7 @@
       "file_type": "code",
       "norm_label": "conversation()",
       "source_file": "apps/web/src/main.tsx",
-      "source_location": "L633"
+      "source_location": "L634"
     },
     {
       "id": "apps_web_src_main_app_enablelivevoice",
@@ -1715,7 +1715,7 @@
       "file_type": "code",
       "norm_label": "enablelivevoice()",
       "source_file": "apps/web/src/main.tsx",
-      "source_location": "L374"
+      "source_location": "L375"
     },
     {
       "id": "apps_web_src_main_app_end",
@@ -1751,7 +1751,7 @@
       "file_type": "code",
       "norm_label": "login()",
       "source_file": "apps/web/src/main.tsx",
-      "source_location": "L455"
+      "source_location": "L456"
     },
     {
       "id": "apps_web_src_main_app_navigate",
@@ -1811,7 +1811,7 @@
       "file_type": "code",
       "norm_label": "staffaction()",
       "source_file": "apps/web/src/main.tsx",
-      "source_location": "L468"
+      "source_location": "L469"
     },
     {
       "id": "apps_web_src_main_app_startvoice",
@@ -1823,7 +1823,7 @@
       "file_type": "code",
       "norm_label": "startvoice()",
       "source_file": "apps/web/src/main.tsx",
-      "source_location": "L409"
+      "source_location": "L410"
     },
     {
       "id": "apps_web_src_main_app_tracepanel",
@@ -1835,7 +1835,7 @@
       "file_type": "code",
       "norm_label": "tracepanel()",
       "source_file": "apps/web/src/main.tsx",
-      "source_location": "L506"
+      "source_location": "L507"
     },
     {
       "id": "packages_i18n_src_index_errortext",
@@ -1915,7 +1915,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "VoiceClient / LiveVoiceClient",
+      "community_name": "LiveVoiceClient / VoiceClient",
       "file_type": "code",
       "norm_label": ".close()",
       "source_file": "apps/web/src/capture.ts",
@@ -1927,7 +1927,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "VoiceClient / LiveVoiceClient",
+      "community_name": "LiveVoiceClient / VoiceClient",
       "file_type": "code",
       "norm_label": ".mute()",
       "source_file": "apps/web/src/capture.ts",
@@ -1939,7 +1939,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "VoiceClient / LiveVoiceClient",
+      "community_name": "LiveVoiceClient / VoiceClient",
       "file_type": "code",
       "norm_label": ".start()",
       "source_file": "apps/web/src/capture.ts",
@@ -1951,11 +1951,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "VoiceClient / LiveVoiceClient",
+      "community_name": "LiveVoiceClient / VoiceClient",
       "file_type": "code",
       "norm_label": ".cleanup()",
       "source_file": "apps/web/src/live-voice.ts",
-      "source_location": "L236"
+      "source_location": "L271"
     },
     {
       "id": "apps_web_src_live_voice_livevoiceclient_close",
@@ -1963,11 +1963,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "VoiceClient / LiveVoiceClient",
+      "community_name": "LiveVoiceClient / VoiceClient",
       "file_type": "code",
       "norm_label": ".close()",
       "source_file": "apps/web/src/live-voice.ts",
-      "source_location": "L246"
+      "source_location": "L281"
     },
     {
       "id": "apps_web_src_live_voice_livevoiceclient_constructor",
@@ -1975,7 +1975,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "VoiceClient / LiveVoiceClient",
+      "community_name": "LiveVoiceClient / VoiceClient",
       "file_type": "code",
       "norm_label": ".constructor()",
       "source_file": "apps/web/src/live-voice.ts",
@@ -1987,11 +1987,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "VoiceClient / LiveVoiceClient",
+      "community_name": "LiveVoiceClient / VoiceClient",
       "file_type": "code",
       "norm_label": ".frame()",
       "source_file": "apps/web/src/live-voice.ts",
-      "source_location": "L143"
+      "source_location": "L155"
     },
     {
       "id": "apps_web_src_live_voice_livevoiceclient_interrupt",
@@ -1999,11 +1999,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "VoiceClient / LiveVoiceClient",
+      "community_name": "LiveVoiceClient / VoiceClient",
       "file_type": "code",
       "norm_label": ".interrupt()",
       "source_file": "apps/web/src/live-voice.ts",
-      "source_location": "L196"
+      "source_location": "L223"
     },
     {
       "id": "apps_web_src_live_voice_livevoiceclient_mute",
@@ -2011,11 +2011,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "VoiceClient / LiveVoiceClient",
+      "community_name": "LiveVoiceClient / VoiceClient",
       "file_type": "code",
       "norm_label": ".mute()",
       "source_file": "apps/web/src/live-voice.ts",
-      "source_location": "L184"
+      "source_location": "L211"
     },
     {
       "id": "apps_web_src_live_voice_livevoiceclient_play",
@@ -2023,11 +2023,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "VoiceClient / LiveVoiceClient",
+      "community_name": "LiveVoiceClient / VoiceClient",
       "file_type": "code",
       "norm_label": ".play()",
       "source_file": "apps/web/src/live-voice.ts",
-      "source_location": "L205"
+      "source_location": "L232"
     },
     {
       "id": "apps_web_src_live_voice_livevoiceclient_send",
@@ -2035,11 +2035,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "VoiceClient / LiveVoiceClient",
+      "community_name": "LiveVoiceClient / VoiceClient",
       "file_type": "code",
       "norm_label": ".send()",
       "source_file": "apps/web/src/live-voice.ts",
-      "source_location": "L165"
+      "source_location": "L192"
     },
     {
       "id": "apps_web_src_live_voice_livevoiceclient_sendtext",
@@ -2047,11 +2047,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "VoiceClient / LiveVoiceClient",
+      "community_name": "LiveVoiceClient / VoiceClient",
       "file_type": "code",
       "norm_label": ".sendtext()",
       "source_file": "apps/web/src/live-voice.ts",
-      "source_location": "L175"
+      "source_location": "L202"
     },
     {
       "id": "apps_web_src_live_voice_livevoiceclient_start",
@@ -2059,7 +2059,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "VoiceClient / LiveVoiceClient",
+      "community_name": "LiveVoiceClient / VoiceClient",
       "file_type": "code",
       "norm_label": ".start()",
       "source_file": "apps/web/src/live-voice.ts",
@@ -2071,11 +2071,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "VoiceClient / LiveVoiceClient",
+      "community_name": "LiveVoiceClient / VoiceClient",
       "file_type": "code",
       "norm_label": ".stopplayback()",
       "source_file": "apps/web/src/live-voice.ts",
-      "source_location": "L225"
+      "source_location": "L260"
     },
     {
       "id": "apps_web_src_vad_pcmbase64",
@@ -2083,11 +2083,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "VoiceClient / LiveVoiceClient",
+      "community_name": "LiveVoiceClient / VoiceClient",
       "file_type": "code",
       "norm_label": "pcmbase64()",
       "source_file": "apps/web/src/vad.ts",
-      "source_location": "L44"
+      "source_location": "L88"
     },
     {
       "id": "apps_web_src_vad_voiceactivity_push",
@@ -2095,11 +2095,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "VoiceClient / LiveVoiceClient",
+      "community_name": "LiveVoiceClient / VoiceClient",
       "file_type": "code",
       "norm_label": ".push()",
       "source_file": "apps/web/src/vad.ts",
-      "source_location": "L17"
+      "source_location": "L24"
     },
     {
       "id": "apps_web_src_vad_voiceactivity_reset",
@@ -2107,11 +2107,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "VoiceClient / LiveVoiceClient",
+      "community_name": "LiveVoiceClient / VoiceClient",
       "file_type": "code",
       "norm_label": ".reset()",
       "source_file": "apps/web/src/vad.ts",
-      "source_location": "L11"
+      "source_location": "L17"
     },
     {
       "id": "apps_web_src_voice_voiceclient_cancel",
@@ -2119,7 +2119,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "VoiceClient / LiveVoiceClient",
+      "community_name": "LiveVoiceClient / VoiceClient",
       "file_type": "code",
       "norm_label": ".cancel()",
       "source_file": "apps/web/src/voice.ts",
@@ -2131,7 +2131,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "VoiceClient / LiveVoiceClient",
+      "community_name": "LiveVoiceClient / VoiceClient",
       "file_type": "code",
       "norm_label": ".cancelplayback()",
       "source_file": "apps/web/src/voice.ts",
@@ -2143,7 +2143,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "VoiceClient / LiveVoiceClient",
+      "community_name": "LiveVoiceClient / VoiceClient",
       "file_type": "code",
       "norm_label": ".capture()",
       "source_file": "apps/web/src/voice.ts",
@@ -2155,7 +2155,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "VoiceClient / LiveVoiceClient",
+      "community_name": "LiveVoiceClient / VoiceClient",
       "file_type": "code",
       "norm_label": ".close()",
       "source_file": "apps/web/src/voice.ts",
@@ -2167,7 +2167,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "VoiceClient / LiveVoiceClient",
+      "community_name": "LiveVoiceClient / VoiceClient",
       "file_type": "code",
       "norm_label": ".connect()",
       "source_file": "apps/web/src/voice.ts",
@@ -2179,7 +2179,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "VoiceClient / LiveVoiceClient",
+      "community_name": "LiveVoiceClient / VoiceClient",
       "file_type": "code",
       "norm_label": ".constructor()",
       "source_file": "apps/web/src/voice.ts",
@@ -2191,7 +2191,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "VoiceClient / LiveVoiceClient",
+      "community_name": "LiveVoiceClient / VoiceClient",
       "file_type": "code",
       "norm_label": ".greet()",
       "source_file": "apps/web/src/voice.ts",
@@ -2203,7 +2203,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "VoiceClient / LiveVoiceClient",
+      "community_name": "LiveVoiceClient / VoiceClient",
       "file_type": "code",
       "norm_label": ".play()",
       "source_file": "apps/web/src/voice.ts",
@@ -2215,7 +2215,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "VoiceClient / LiveVoiceClient",
+      "community_name": "LiveVoiceClient / VoiceClient",
       "file_type": "code",
       "norm_label": ".send()",
       "source_file": "apps/web/src/voice.ts",
@@ -2227,7 +2227,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "VoiceClient / LiveVoiceClient",
+      "community_name": "LiveVoiceClient / VoiceClient",
       "file_type": "code",
       "norm_label": ".start()",
       "source_file": "apps/web/src/voice.ts",
@@ -2239,7 +2239,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "VoiceClient / LiveVoiceClient",
+      "community_name": "LiveVoiceClient / VoiceClient",
       "file_type": "code",
       "norm_label": ".stop()",
       "source_file": "apps/web/src/voice.ts",
@@ -2251,7 +2251,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "VoiceClient / LiveVoiceClient",
+      "community_name": "LiveVoiceClient / VoiceClient",
       "file_type": "code",
       "norm_label": ".stopcapture()",
       "source_file": "apps/web/src/voice.ts",
@@ -2633,7 +2633,7 @@
       "file_type": "code",
       "norm_label": "decision",
       "source_file": "packages/core/test/streaming.test.ts",
-      "source_location": "L12"
+      "source_location": "L13"
     },
     {
       "id": "packages_knowledge_src_index_catalogprompt",
@@ -4004,7 +4004,7 @@
       "label": "capture.ts",
       "_origin": "ast",
       "community": 3,
-      "community_name": "VoiceClient / LiveVoiceClient",
+      "community_name": "LiveVoiceClient / VoiceClient",
       "file_type": "code",
       "norm_label": "capture.ts",
       "source_file": "apps/web/src/capture.ts",
@@ -4015,7 +4015,7 @@
       "label": "live-voice.ts",
       "_origin": "ast",
       "community": 3,
-      "community_name": "VoiceClient / LiveVoiceClient",
+      "community_name": "LiveVoiceClient / VoiceClient",
       "file_type": "code",
       "norm_label": "live-voice.ts",
       "source_file": "apps/web/src/live-voice.ts",
@@ -4026,7 +4026,7 @@
       "label": "vad.ts",
       "_origin": "ast",
       "community": 3,
-      "community_name": "VoiceClient / LiveVoiceClient",
+      "community_name": "LiveVoiceClient / VoiceClient",
       "file_type": "code",
       "norm_label": "vad.ts",
       "source_file": "apps/web/src/vad.ts",
@@ -4037,7 +4037,7 @@
       "label": "voice.ts",
       "_origin": "ast",
       "community": 3,
-      "community_name": "VoiceClient / LiveVoiceClient",
+      "community_name": "LiveVoiceClient / VoiceClient",
       "file_type": "code",
       "norm_label": "voice.ts",
       "source_file": "apps/web/src/voice.ts",
@@ -6977,7 +6977,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "apps/web/src/live-voice.ts",
-      "source_location": "L241",
+      "source_location": "L276",
       "weight": 1.0
     },
     {
@@ -6989,7 +6989,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "apps/web/src/live-voice.ts",
-      "source_location": "L248",
+      "source_location": "L283",
       "weight": 1.0
     },
     {
@@ -7001,7 +7001,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "apps/web/src/live-voice.ts",
-      "source_location": "L251",
+      "source_location": "L286",
       "weight": 1.0
     },
     {
@@ -7013,7 +7013,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "apps/web/src/live-voice.ts",
-      "source_location": "L147",
+      "source_location": "L167",
       "weight": 1.0
     },
     {
@@ -7025,7 +7025,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "apps/web/src/live-voice.ts",
-      "source_location": "L149",
+      "source_location": "L169",
       "weight": 1.0
     },
     {
@@ -7037,7 +7037,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "apps/web/src/live-voice.ts",
-      "source_location": "L156",
+      "source_location": "L176",
       "weight": 1.0
     },
     {
@@ -7049,7 +7049,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "apps/web/src/live-voice.ts",
-      "source_location": "L199",
+      "source_location": "L226",
       "weight": 1.0
     },
     {
@@ -7061,7 +7061,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "apps/web/src/live-voice.ts",
-      "source_location": "L203",
+      "source_location": "L230",
       "weight": 1.0
     },
     {
@@ -7073,7 +7073,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "apps/web/src/live-voice.ts",
-      "source_location": "L189",
+      "source_location": "L217",
       "weight": 1.0
     },
     {
@@ -7085,7 +7085,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "apps/web/src/live-voice.ts",
-      "source_location": "L216",
+      "source_location": "L243",
       "weight": 1.0
     },
     {
@@ -7097,7 +7097,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "apps/web/src/live-voice.ts",
-      "source_location": "L169",
+      "source_location": "L196",
       "weight": 1.0
     },
     {
@@ -7109,7 +7109,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "apps/web/src/live-voice.ts",
-      "source_location": "L176",
+      "source_location": "L203",
       "weight": 1.0
     },
     {
@@ -7121,7 +7121,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "apps/web/src/live-voice.ts",
-      "source_location": "L182",
+      "source_location": "L209",
       "weight": 1.0
     },
     {
@@ -7133,7 +7133,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "apps/web/src/live-voice.ts",
-      "source_location": "L134",
+      "source_location": "L146",
       "weight": 1.0
     },
     {
@@ -7181,7 +7181,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "apps/web/src/live-voice.ts",
-      "source_location": "L76",
+      "source_location": "L88",
       "weight": 1.0
     },
     {
@@ -7193,7 +7193,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "apps/web/src/main.tsx",
-      "source_location": "L1003",
+      "source_location": "L1004",
       "weight": 1.0
     },
     {
@@ -7205,7 +7205,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "apps/web/src/main.tsx",
-      "source_location": "L484",
+      "source_location": "L485",
       "weight": 1.0
     },
     {
@@ -7217,7 +7217,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "apps/web/src/main.tsx",
-      "source_location": "L527",
+      "source_location": "L528",
       "weight": 1.0
     },
     {
@@ -7277,7 +7277,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "apps/web/src/main.tsx",
-      "source_location": "L642",
+      "source_location": "L643",
       "weight": 1.0
     },
     {
@@ -7289,7 +7289,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "apps/web/src/main.tsx",
-      "source_location": "L730",
+      "source_location": "L731",
       "weight": 1.0
     },
     {
@@ -7301,7 +7301,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "apps/web/src/main.tsx",
-      "source_location": "L768",
+      "source_location": "L769",
       "weight": 1.0
     },
     {
@@ -7313,7 +7313,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "apps/web/src/main.tsx",
-      "source_location": "L781",
+      "source_location": "L782",
       "weight": 1.0
     },
     {
@@ -7325,7 +7325,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "apps/web/src/main.tsx",
-      "source_location": "L385",
+      "source_location": "L386",
       "weight": 1.0
     },
     {
@@ -7349,7 +7349,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "apps/web/src/main.tsx",
-      "source_location": "L355",
+      "source_location": "L356",
       "weight": 1.0
     },
     {
@@ -7361,7 +7361,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "apps/web/src/main.tsx",
-      "source_location": "L371",
+      "source_location": "L372",
       "weight": 1.0
     },
     {
@@ -7373,7 +7373,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "apps/web/src/main.tsx",
-      "source_location": "L460",
+      "source_location": "L461",
       "weight": 1.0
     },
     {
@@ -7409,7 +7409,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "apps/web/src/main.tsx",
-      "source_location": "L471",
+      "source_location": "L472",
       "weight": 1.0
     },
     {
@@ -7421,7 +7421,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "apps/web/src/main.tsx",
-      "source_location": "L414",
+      "source_location": "L415",
       "weight": 1.0
     },
     {
@@ -7433,7 +7433,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "apps/web/src/main.tsx",
-      "source_location": "L431",
+      "source_location": "L432",
       "weight": 1.0
     },
     {
@@ -7445,7 +7445,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "apps/web/src/main.tsx",
-      "source_location": "L525",
+      "source_location": "L526",
       "weight": 1.0
     },
     {
@@ -7457,7 +7457,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "apps/web/src/main.tsx",
-      "source_location": "L527",
+      "source_location": "L528",
       "weight": 1.0
     },
     {
@@ -7469,7 +7469,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "apps/web/src/vad.ts",
-      "source_location": "L38",
+      "source_location": "L82",
       "weight": 1.0
     },
     {
@@ -8529,6 +8529,18 @@
       "weight": 1.0
     },
     {
+      "source": "packages_core_test_streaming_test",
+      "target": "apps_web_src_live_voice_livevoiceclient_frame",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "packages/core/test/streaming.test.ts",
+      "source_location": "L197",
+      "weight": 1.0
+    },
+    {
       "source": "packages_core_test_streaming_test_setup",
       "target": "packages_db_src_index_store",
       "relation": "calls",
@@ -8537,7 +8549,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "packages/core/test/streaming.test.ts",
-      "source_location": "L23",
+      "source_location": "L24",
       "weight": 1.0
     },
     {
@@ -8549,7 +8561,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "packages/core/test/streaming.test.ts",
-      "source_location": "L24",
+      "source_location": "L25",
       "weight": 1.0
     },
     {
@@ -9401,7 +9413,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "apps/web/src/main.tsx",
-      "source_location": "L468",
+      "source_location": "L469",
       "weight": 1.0
     },
     {
@@ -9413,7 +9425,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "apps/web/src/main.tsx",
-      "source_location": "L506",
+      "source_location": "L507",
       "weight": 1.0
     },
     {
@@ -9425,7 +9437,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "apps/web/src/main.tsx",
-      "source_location": "L633",
+      "source_location": "L634",
       "weight": 1.0
     },
     {
@@ -9485,7 +9497,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "packages/core/test/streaming.test.ts",
-      "source_location": "L22",
+      "source_location": "L23",
       "weight": 1.0
     },
     {
@@ -11052,7 +11064,19 @@
     },
     {
       "source": "packages_core_test_streaming_test",
-      "target": "apps_web_src_vad_voiceactivity",
+      "target": "apps_web_src_live_voice_livevoiceclient",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "packages/core/test/streaming.test.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "packages_core_test_streaming_test",
+      "target": "packages_core_src_index_engine",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -11064,7 +11088,7 @@
     },
     {
       "source": "packages_core_test_streaming_test",
-      "target": "packages_contracts_src_index_decision",
+      "target": "apps_web_src_vad_voiceactivity",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -11076,6 +11100,18 @@
     },
     {
       "source": "packages_core_test_streaming_test",
+      "target": "packages_contracts_src_index_decision",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "packages/core/test/streaming.test.ts",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "packages_core_test_streaming_test",
       "target": "packages_db_src_index_store",
       "relation": "imports",
       "_origin": "ast",
@@ -11083,7 +11119,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "packages/core/test/streaming.test.ts",
-      "source_location": "L7",
+      "source_location": "L8",
       "weight": 1.0
     },
     {
@@ -11095,24 +11131,12 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "packages/core/test/streaming.test.ts",
-      "source_location": "L8",
+      "source_location": "L9",
       "weight": 1.0
     },
     {
       "source": "packages_core_test_streaming_test",
       "target": "packages_ai_src_streaming_sentencebuffer",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "packages/core/test/streaming.test.ts",
-      "source_location": "L8",
-      "weight": 1.0
-    },
-    {
-      "source": "packages_core_test_streaming_test",
-      "target": "packages_core_src_index_engine",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -12281,7 +12305,7 @@
     },
     {
       "source": "packages_core_test_streaming_test",
-      "target": "ref_node_test",
+      "target": "apps_web_src_live_voice",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -12293,7 +12317,7 @@
     },
     {
       "source": "packages_core_test_streaming_test",
-      "target": "apps_web_src_vad",
+      "target": "packages_core_src_index",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -12305,7 +12329,7 @@
     },
     {
       "source": "packages_core_test_streaming_test",
-      "target": "packages_contracts_src_index",
+      "target": "apps_web_src_vad",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -12313,12 +12337,24 @@
       "context": "import",
       "source_file": "packages/core/test/streaming.test.ts",
       "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "packages_core_test_streaming_test",
+      "target": "packages_contracts_src_index",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "packages/core/test/streaming.test.ts",
+      "source_location": "L12",
       "type_only": true,
       "weight": 1.0
     },
     {
       "source": "packages_core_test_streaming_test",
-      "target": "ref_node_assert",
+      "target": "ref_node_test",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -12330,7 +12366,7 @@
     },
     {
       "source": "packages_core_test_streaming_test",
-      "target": "ref_node_crypto",
+      "target": "ref_node_assert",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -12342,7 +12378,7 @@
     },
     {
       "source": "packages_core_test_streaming_test",
-      "target": "ref_node_fs",
+      "target": "ref_node_crypto",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -12354,7 +12390,7 @@
     },
     {
       "source": "packages_core_test_streaming_test",
-      "target": "ref_node_os",
+      "target": "ref_node_fs",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -12366,7 +12402,7 @@
     },
     {
       "source": "packages_core_test_streaming_test",
-      "target": "ref_node_path",
+      "target": "ref_node_os",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -12378,7 +12414,7 @@
     },
     {
       "source": "packages_core_test_streaming_test",
-      "target": "packages_db_src_index",
+      "target": "ref_node_path",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -12390,7 +12426,7 @@
     },
     {
       "source": "packages_core_test_streaming_test",
-      "target": "packages_ai_src_streaming",
+      "target": "packages_db_src_index",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -12402,7 +12438,7 @@
     },
     {
       "source": "packages_core_test_streaming_test",
-      "target": "packages_core_src_index",
+      "target": "packages_ai_src_streaming",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -13904,7 +13940,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "apps/web/src/main.tsx",
-      "source_location": "L374",
+      "source_location": "L375",
       "weight": 1.0
     },
     {
@@ -13915,7 +13951,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "apps/web/src/main.tsx",
-      "source_location": "L409",
+      "source_location": "L410",
       "weight": 1.0
     },
     {
@@ -13926,7 +13962,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "apps/web/src/main.tsx",
-      "source_location": "L455",
+      "source_location": "L456",
       "weight": 1.0
     },
     {
@@ -13942,17 +13978,6 @@
     },
     {
       "source": "apps_web_src_vad",
-      "target": "apps_web_src_vad_pcmbase64",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "apps/web/src/vad.ts",
-      "source_location": "L44",
-      "weight": 1.0
-    },
-    {
-      "source": "apps_web_src_vad",
       "target": "apps_web_src_vad_voiceactivity",
       "relation": "contains",
       "_origin": "ast",
@@ -13960,6 +13985,17 @@
       "confidence_score": 1.0,
       "source_file": "apps/web/src/vad.ts",
       "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "apps_web_src_vad",
+      "target": "apps_web_src_vad_pcmbase64",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "apps/web/src/vad.ts",
+      "source_location": "L88",
       "weight": 1.0
     },
     {
@@ -14850,7 +14886,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "packages/core/test/streaming.test.ts",
-      "source_location": "L12",
+      "source_location": "L13",
       "weight": 1.0
     },
     {
@@ -14861,7 +14897,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "packages/core/test/streaming.test.ts",
-      "source_location": "L160",
+      "source_location": "L161",
       "weight": 1.0
     },
     {
@@ -15686,7 +15722,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "apps/web/src/live-voice.ts",
-      "source_location": "L143",
+      "source_location": "L155",
       "weight": 1.0
     },
     {
@@ -15697,7 +15733,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "apps/web/src/live-voice.ts",
-      "source_location": "L165",
+      "source_location": "L192",
       "weight": 1.0
     },
     {
@@ -15708,7 +15744,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "apps/web/src/live-voice.ts",
-      "source_location": "L175",
+      "source_location": "L202",
       "weight": 1.0
     },
     {
@@ -15719,7 +15755,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "apps/web/src/live-voice.ts",
-      "source_location": "L184",
+      "source_location": "L211",
       "weight": 1.0
     },
     {
@@ -15730,7 +15766,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "apps/web/src/live-voice.ts",
-      "source_location": "L196",
+      "source_location": "L223",
       "weight": 1.0
     },
     {
@@ -15741,29 +15777,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "apps/web/src/live-voice.ts",
-      "source_location": "L205",
-      "weight": 1.0
-    },
-    {
-      "source": "apps_web_src_live_voice_livevoiceclient",
-      "target": "apps_web_src_live_voice_livevoiceclient_stopplayback",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "apps/web/src/live-voice.ts",
-      "source_location": "L225",
-      "weight": 1.0
-    },
-    {
-      "source": "apps_web_src_live_voice_livevoiceclient",
-      "target": "apps_web_src_live_voice_livevoiceclient_cleanup",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "apps/web/src/live-voice.ts",
-      "source_location": "L236",
+      "source_location": "L232",
       "weight": 1.0
     },
     {
@@ -15779,13 +15793,24 @@
     },
     {
       "source": "apps_web_src_live_voice_livevoiceclient",
-      "target": "apps_web_src_live_voice_livevoiceclient_close",
+      "target": "apps_web_src_live_voice_livevoiceclient_stopplayback",
       "relation": "method",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "apps/web/src/live-voice.ts",
-      "source_location": "L246",
+      "source_location": "L260",
+      "weight": 1.0
+    },
+    {
+      "source": "apps_web_src_live_voice_livevoiceclient",
+      "target": "apps_web_src_live_voice_livevoiceclient_cleanup",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "apps/web/src/live-voice.ts",
+      "source_location": "L271",
       "weight": 1.0
     },
     {
@@ -15800,6 +15825,17 @@
       "weight": 1.0
     },
     {
+      "source": "apps_web_src_live_voice_livevoiceclient",
+      "target": "apps_web_src_live_voice_livevoiceclient_close",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "apps/web/src/live-voice.ts",
+      "source_location": "L281",
+      "weight": 1.0
+    },
+    {
       "source": "apps_web_src_vad_voiceactivity",
       "target": "apps_web_src_vad_voiceactivity_reset",
       "relation": "method",
@@ -15807,7 +15843,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "apps/web/src/vad.ts",
-      "source_location": "L11",
+      "source_location": "L17",
       "weight": 1.0
     },
     {
@@ -15818,7 +15854,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "apps/web/src/vad.ts",
-      "source_location": "L17",
+      "source_location": "L24",
       "weight": 1.0
     },
     {
@@ -17567,7 +17603,7 @@
       "confidence_score": 0.8,
       "context": "call",
       "source_file": "packages/core/test/streaming.test.ts",
-      "source_location": "L25",
+      "source_location": "L26",
       "weight": 1.0
     },
     {
@@ -17579,7 +17615,7 @@
       "confidence_score": 0.8,
       "context": "call",
       "source_file": "packages/core/test/streaming.test.ts",
-      "source_location": "L26",
+      "source_location": "L27",
       "weight": 1.0
     },
     {
@@ -17615,7 +17651,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "apps/web/src/main.tsx",
-      "source_location": "L385",
+      "source_location": "L386",
       "weight": 1.0
     },
     {
@@ -17627,7 +17663,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "packages/core/test/streaming.test.ts",
-      "source_location": "L40",
+      "source_location": "L41",
       "weight": 1.0
     },
     {
@@ -17639,7 +17675,7 @@
       "confidence_score": 0.85,
       "context": "collection",
       "source_file": "apps/web/src/main.tsx",
-      "source_location": "L460",
+      "source_location": "L461",
       "weight": 1.0
     },
     {
@@ -21834,5 +21870,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "c78f25eac86f89837923a8c681f7ad482e1a16f8"
+  "built_at_commit": "c52771a98d3add8f84f8c3a23551d189f14f016e"
 }

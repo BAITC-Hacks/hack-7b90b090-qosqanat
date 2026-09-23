@@ -324,6 +324,7 @@ function App() {
     )
       setVoiceState(e.type);
     if (e.type === "speech.started") setVoiceState("listening");
+    if (e.type === "response.start") setVoiceState("processing");
     if (e.type === "result" && e.view) setView(e.view);
     if (e.type === "transcript.delta" || e.type === "transcript.final")
       setLiveDrafts((old) => ({

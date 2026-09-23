@@ -1,3 +1,4 @@
+import { LiveVoiceClient } from "../../../apps/web/src/live-voice.js";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
@@ -142,7 +143,7 @@ test("VAD keeps pre-roll, tolerates inner pauses and ends after 700ms; reset dis
   assert.equal(start.filter((e) => e.type === "audio").length, 15);
   for (let i = 0; i < 20; i++)
     assert(!vad.push(silence).some((e) => e.type === "end"));
-  vad.push(speech);
+  for (let i = 0; i < 3; i++) vad.push(speech);
   for (let i = 0; i < 34; i++)
     assert(!vad.push(silence).some((e) => e.type === "end"));
   assert(vad.push(silence).some((e) => e.type === "end"));
@@ -188,4 +189,60 @@ test("final input persists before model work and repeated input cannot duplicate
     () => e.acceptInput(a.token, turn, "Подменённая реплика"),
     /stale_state/,
   );
+});
+
+test("VAD ends against calibrated background and ignores clicks during a pause", () => {
+  const vad = new VoiceActivity();
+  const frame = (amplitude: number) => new Float32Array(480).fill(amplitude);
+  for (let i = 0; i < 30; i++) assert.equal(vad.push(frame(0.02)).length, 0);
+  let starts = 0,
+    ends = 0;
+  for (let i = 0; i < 20; i++)
+    starts += vad.push(frame(0.09)).filter((e) => e.type === "start").length;
+  for (let i = 0; i < 35; i++)
+    ends += vad
+      .push(frame(i === 20 ? 0.1 : 0.02))
+      .filter((e) => e.type === "end").length;
+  assert.equal(starts, 1);
+  assert.equal(ends, 1);
+  for (let i = 0; i < 50; i++) assert.equal(vad.push(frame(0.02)).length, 0);
+});
+test("VAD accepts quiet speech and requires sustained barge-in", () => {
+  const vad = new VoiceActivity();
+  const frame = (n: number) => new Float32Array(480).fill(n);
+  for (let i = 0; i < 15; i++) vad.push(frame(0.001));
+  for (let i = 0; i < 2; i++) assert.equal(vad.push(frame(0.01)).length, 0);
+  assert(vad.push(frame(0.01)).some((e) => e.type === "start"));
+  for (let i = 0; i < 35; i++) vad.push(frame(0.001));
+  for (let i = 0; i < 7; i++)
+    assert.equal(vad.push(frame(0.08), true).length, 0);
+  assert(vad.push(frame(0.08), true).some((e) => e.type === "start"));
+});
+
+test("VAD closes a turn after the background level rises", () => {
+  const vad = new VoiceActivity();
+  const frame = (n: number) => new Float32Array(480).fill(n);
+  for (let i = 0; i < 20; i++) vad.push(frame(0.002));
+  for (let i = 0; i < 50; i++) vad.push(frame(0.15));
+  let ends = 0;
+  for (let i = 0; i < 150; i++)
+    ends += vad
+      .push(frame([0.006, 0.014, 0.022, 0.012][i % 4]!))
+      .filter((e) => e.type === "end").length;
+  assert.equal(ends, 1);
+});
+
+test("muting finalizes the active utterance without removing its draft or duplicating end", () => {
+  const events: any[] = [],
+    sent: any[] = [];
+  const client = new LiveVoiceClient("test", (e) => events.push(e));
+  client.send = (e) => {
+    sent.push(e);
+  };
+  Object.assign(client, { turn: "test-turn" });
+  client.mute();
+  assert.deepEqual(sent, [{ type: "speech_end", turn_id: "test-turn" }]);
+  assert(!events.some((e) => e.type === "transcript.cancelled"));
+  client.mute();
+  assert.equal(sent.length, 1);
 });

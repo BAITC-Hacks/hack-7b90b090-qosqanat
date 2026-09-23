@@ -5,10 +5,10 @@
 # Graph Report - hack-7b90b090-qosqanat  (2026-09-23)
 
 ## Corpus Check
-- Corpus is ~24,223 words - fits in a single context window. You may not need a graph.
+- Corpus is ~24,418 words - fits in a single context window. You may not need a graph.
 
 ## Summary
-- 590 nodes · 1356 edges · 33 communities (32 shown, 1 thin omitted)
+- 590 nodes · 1359 edges · 33 communities (32 shown, 1 thin omitted)
 - Extraction: 94% EXTRACTED · 6% INFERRED · 0% AMBIGUOUS · INFERRED: 83 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
@@ -16,7 +16,7 @@
 - gateway/src/index.ts / ai/src/index.ts
 - Store / .get()
 - main.tsx / i18n/src/index.ts
-- VoiceClient / LiveVoiceClient
+- LiveVoiceClient / VoiceClient
 - web/package.json / dependencies
 - graph-docs.py / evaluate.py
 - dev_utterances.json / kb_lookup
@@ -88,7 +88,7 @@ Nodes (11): interval, CaseState, Message, Session, Staff, Trace, Engine, mask() 
 Cohesion: 0.09
 Nodes (36): App(), api(), begin(), chooseCase(), Conversation(), enableLiveVoice(), end(), liveEvent() (+28 more)
 
-### Community 3 - "VoiceClient / LiveVoiceClient"
+### Community 3 - "LiveVoiceClient / VoiceClient"
 Cohesion: 0.11
 Nodes (7): Microphone, LiveVoiceClient, pcmBase64(), VadEvent, VoiceActivity, VoiceClient, VoiceEvent
 
@@ -215,9 +215,9 @@ _Questions this graph is uniquely positioned to answer:_
 - **Why does `AppError` connect `AppError / actions.ts` to `gateway/src/index.ts / ai/src/index.ts`, `Store / .get()`, `core/src/index.ts / engine.test.ts`, `contracts/src/index.ts / db/src/index.ts`, `scenario-service/src/index.ts / createSessionSchema`?**
   _High betweenness centrality (0.028) - this node is a cross-community bridge._
 - **Why does `Store` connect `Store / .get()` to `gateway/src/index.ts / ai/src/index.ts`, `core/src/index.ts / engine.test.ts`, `contracts/src/index.ts / db/src/index.ts`, `AppError / actions.ts`, `scenario-service/src/index.ts / createSessionSchema`?**
-  _High betweenness centrality (0.024) - this node is a cross-community bridge._
-- **Why does `VoiceClient` connect `VoiceClient / LiveVoiceClient` to `main.tsx / i18n/src/index.ts`?**
-  _High betweenness centrality (0.022) - this node is a cross-community bridge._
+  _High betweenness centrality (0.026) - this node is a cross-community bridge._
+- **Why does `VoiceClient` connect `LiveVoiceClient / VoiceClient` to `main.tsx / i18n/src/index.ts`?**
+  _High betweenness centrality (0.021) - this node is a cross-community bridge._
 - **What connects `name`, `private`, `type` to the rest of the system?**
   _205 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `gateway/src/index.ts / ai/src/index.ts` be split into smaller, more focused modules?**

@@ -61,6 +61,18 @@ export class LiveVoiceClient {
             resolve();
             return;
           }
+          if (
+            ["transcript.final", "response.start", "audio_done"].includes(
+              e.type,
+            )
+          )
+            console.debug(
+              "voice.transition",
+              JSON.stringify({
+                stage: e.type,
+                at_ms: Math.round(performance.now()),
+              }),
+            );
           if (e.type === "error") {
             clearTimeout(timer);
             if (!this.started) reject(Error(e.code));
@@ -141,8 +153,16 @@ export class LiveVoiceClient {
     }
   }
   private frame(samples: Float32Array) {
+    if (!this.enabled) {
+      this.vad.push(samples);
+      this.vad.reset();
+      return;
+    }
     if (!this.enabled || !this.inputEnabled || this.muted) return;
-    for (const e of this.vad.push(samples, this.nodes.length > 0)) {
+    for (const e of this.vad.push(
+      samples,
+      this.receiving || this.nodes.length > 0,
+    )) {
       if (e.type === "start") {
         this.interrupt();
         this.turn = crypto.randomUUID();
@@ -156,6 +176,13 @@ export class LiveVoiceClient {
           audio: pcmBase64(e.samples!),
         });
       if (e.type === "end") {
+        console.debug(
+          "voice.transition",
+          JSON.stringify({
+            stage: "speech_end",
+            at_ms: Math.round(performance.now()),
+          }),
+        );
         this.send({ type: "speech_end", turn_id: this.turn });
         this.event({ type: "transcribing", turn_id: this.turn });
         this.turn = "";
@@ -186,10 +213,10 @@ export class LiveVoiceClient {
     this.mic.mute(this.muted);
     this.vad.reset();
     if (this.turn) {
-      this.send({ type: "input_cancel" });
-      this.event({ type: "transcript.cancelled", turn_id: this.turn });
+      // Muting ends capture; it must not discard the user's current utterance.
+      this.send({ type: "speech_end", turn_id: this.turn });
+      this.event({ type: "transcribing", turn_id: this.turn });
       this.turn = "";
-      this.inputEnabled = false;
     }
     this.event({ type: this.muted ? "muted" : "listening" });
   }
@@ -219,6 +246,14 @@ export class LiveVoiceClient {
     node.onended = () => {
       this.nodes = this.nodes.filter((n) => n !== node);
     };
+    if (this.nodes.length === 1)
+      console.debug(
+        "voice.transition",
+        JSON.stringify({
+          stage: "audio_scheduled",
+          at_ms: Math.round(performance.now()),
+        }),
+      );
     this.message = id;
     this.event({ type: "speaking" });
   }
