@@ -1,0 +1,13 @@
+{
+  "name": "@voice/core",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@voice/contracts": "workspace:*",
+    "@voice/db": "workspace:*",
+    "@voice/knowledge": "workspace:*"
+  }
+}

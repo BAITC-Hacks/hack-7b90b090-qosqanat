@@ -1,0 +1,16 @@
+{
+  "name": "@voice/scenario-service",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@voice/contracts": "workspace:*",
+    "@voice/core": "workspace:*",
+    "@voice/ai": "workspace:*",
+    "@voice/knowledge": "workspace:*",
+    "@voice/db": "workspace:*"
+  }
+}

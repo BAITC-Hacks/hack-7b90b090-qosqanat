@@ -1,0 +1,10 @@
+.git
+.env
+.env.*
+node_modules
+**/node_modules
+var
+logs
+graphify-out
+**/dist
+evals/artifacts

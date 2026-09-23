@@ -1,0 +1,1 @@
+{"name": "@voice/evals", "private": true, "type": "module", "dependencies": {"@voice/ai": "workspace:*", "@voice/core": "workspace:*", "@voice/contracts": "workspace:*", "@voice/knowledge": "workspace:*", "@voice/db": "workspace:*"}}

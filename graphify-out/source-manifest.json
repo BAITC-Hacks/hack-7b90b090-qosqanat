@@ -1,0 +1,18 @@
+{
+  "docs/HackAlem AI_ Voice Router - \u0433\u0438\u0431\u0440\u0438\u0434\u043d\u044b\u0439 \u0433\u043e\u043b\u043e\u0441\u043e\u0432\u043e\u0439 AI-\u0440\u043e\u0431\u043e\u0442 \u0441 LLM-\u0441\u043b\u043e\u0435\u043c \u0432\u044b\u0431\u043e\u0440\u0430 \u0441\u0446\u0435\u043d\u0430\u0440\u0438\u044f.docx": "4abbd763c7ba8ff125071f00529578c1cc4238a772a30c39238d4ff78bf03e91",
+  "docs/task-audit.md": "e167d486d265f40f5100a89853a56b33447b34e0aa6a5263229943e68964111f",
+  "docs/validation.md": "74910fc2ff93d52735e9662a21d1604e29ea17c0d2b725308a60488337e26750",
+  "docs/validation-results.json": "c094cec737fe3519e6d93981cf3e831095f5f788af10d648cb248aae02114165",
+  "docs/tool-versions.json": "c3798a3e3f3f4c79482c6b47b33482e6dbe312470cbcc8b87305daffa1005fd9",
+  "docs/voice_router_dataset/dialogs_sample.json": "6560f8db98e3046179f4345b3e4efec53c907a24f60a89ffb3c4c43ad3679349",
+  "docs/voice_router_dataset/slots.json": "56d74f31d257577bf9cd7f70eb337bdfe05fc4c2c632339a56bc4af1a23ab347",
+  "docs/voice_router_dataset/README.kz.md": "6b735ca387c81baed9064c61cfec0a33eb899437ea9be46c4c1f879328f1dde1",
+  "docs/voice_router_dataset/mock_backend.json": "9f488c7ffc7ea90e36f3e9d3e02429d624be225082a63ecc0d63a95cc0813152",
+  "docs/voice_router_dataset/README.md": "f28258bc0a4cd4c96cfd9f7208e0f84ddca7e52228b2d8d0e958939663b5cd2c",
+  "docs/voice_router_dataset/evaluate.py": "d0b2dbb5043e0c424ab3c7a43ef3cec2249a30a630ce71c40e823608b671c10f",
+  "docs/voice_router_dataset/dev_utterances.json": "e09e4a557a24e35e045e62628ed62d55654d5b3a252aa22622d945710795013e",
+  "docs/voice_router_dataset/scenarios.json": "6d057b81df7612fc7aa6528a200c0f933729c0c65c02f991a6af30d40d9bb6c4",
+  "docs/voice_router_dataset/knowledge_base.json": "b6f2224b539d88e625c988af742010fa8ecc4eca8e60de67d40d44c1320e4ce6",
+  "docs/voice_router_dataset/README.ru.md": "15a22772f4e28e1bf091df9ae4fe98f32f77e90d5d6a7147f5420d8d050aafba",
+  "docs/voice_router_dataset/actions.json": "2e5b0b66a10fa9fb85fbe79fefb56513eb0aa413519b6ea3ec8a84173676f03f"
+}

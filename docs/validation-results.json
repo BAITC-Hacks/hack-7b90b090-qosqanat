@@ -1,0 +1,61 @@
+{
+  "date": "2026-09-23",
+  "routing": {
+    "model": "gpt-realtime-2.1",
+    "prompt_sha256": "2c6545ed7c8732d24ed9d9c26eda754c67c9f60c1b3ddbceafb31e1de338f5ba",
+    "total": 104,
+    "exact": 103,
+    "primary": 103
+  },
+  "routing_misses": [
+    {
+      "id": "U090",
+      "expected": [
+        "SC14",
+        "SC18"
+      ],
+      "actual": [
+        "SC18"
+      ],
+      "primary": false,
+      "exact": false,
+      "latency": 3339
+    }
+  ],
+  "dialogs": {
+    "total": 10,
+    "client_turns": 40,
+    "route_exact": 39,
+    "errors": 0,
+    "note": "Actual generated responses; reference bot turns are not injected."
+  },
+  "voice": {
+    "kind": "synthetic audio through live gateway and OpenAI; not human microphone evaluation",
+    "reports": [
+      {
+        "language": "ru",
+        "transcript": "Где находится ваш офис в Алматы?",
+        "scenario": "SC33",
+        "audio_bytes": 741600,
+        "end_to_first_audio_ms": 5009
+      },
+      {
+        "language": "kk",
+        "transcript": "Астанадағы кеңсеңіздің мекенжайы қандай?",
+        "scenario": "SC33",
+        "audio_bytes": 897600,
+        "end_to_first_audio_ms": 4977
+      },
+      {
+        "language": "mixed",
+        "transcript": "Сәлеметсіз бе, где ваш офис в Шымкенте?",
+        "scenario": "SC33",
+        "audio_bytes": 583200,
+        "end_to_first_audio_ms": 4387
+      }
+    ]
+  },
+  "offline_tests": 12,
+  "http_integration": "passed: 3 parallel sessions, role checks, atomic claim, transfer, AI stop",
+  "compose": "configuration validated; Docker Engine unavailable; clean container run not verified"
+}

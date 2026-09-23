@@ -1,0 +1,44 @@
+{
+  "name": "voice-router",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.8.0",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "dev:web": "pnpm --filter @voice/web dev",
+    "dev:gateway": "pnpm --filter @voice/gateway dev",
+    "dev:scenario": "pnpm --filter @voice/scenario-service dev",
+    "build": "pnpm --filter @voice/web build",
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test packages/core/test/*.test.ts",
+    "eval": "node --import tsx evals/src/run.ts",
+    "demo:reset": "node --import tsx scripts/reset.ts",
+    "graph:update": "node scripts/graph-update.mjs",
+    "format": "prettier --write \"apps/**/*.{ts,tsx,css}\" \"packages/**/*.ts\" \"evals/src/*.ts\" \"scripts/*.{ts,mjs}\"",
+    "env:setup": "node scripts/setup.mjs"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "ws": "^8.18.1",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.15.0",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "@types/ws": "^8.18.1",
+    "prettier": "^3.9.9",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  }
+}
